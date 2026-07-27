@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Unit Converter - Convert Length Weight and Temperature Online{% endblock %}
+{% block content %}
+
+<div class="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">Unit Converter</h1>
+    <p class="text-gray-500 mb-4">Convert between length, weight and temperature units.</p>
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <label class="text-sm text-gray-600">Category: <select id="category" class="w-full" onchange="updateUnits()"><option value="length">Length</option><option value="weight">Weight</option><option value="temperature">Temperature</option></select></label>
+    </div>
+    <div class="grid grid-cols-3 gap-4 items-end mb-4">
+        <div><label class="text-sm text-gray-600 block mb-1">Value</label><input id="value" type="number" value="1" step="any"></div>
+        <div><label class="text-sm text-gray-600 block mb-1">From</label><select id="fromUnit" class="w-full"></select></div>
+        <div><label class="text-sm text-gray-600 block mb-1">To</label><select id="toUnit" class="w-full"></select></div>
+    </div>
+    <button class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 mb-4" onclick="convert()">Convert</button>
+    <div id="result" class="bg-gray-50 rounded-lg p-4 text-lg text-center font-medium"></div>
+</div>
+<script>
+const units={length:{'mm':'Millimeter','cm':'Centimeter','m':'Meter','km':'Kilometer','in':'Inch','ft':'Foot','yd':'Yard','mi':'Mile'},weight:{'mg':'Milligram','g':'Gram','kg':'Kilogram','oz':'Ounce','lb':'Pound'},temperature:{'c':'Celsius','f':'Fahrenheit','k':'Kelvin'}};
+function updateUnits(){const cat=document.getElementById('category').value;const u=units[cat];const f=document.getElementById('fromUnit');const t=document.getElementById('toUnit');f.innerHTML=Object.keys(u).map(k=>'<option value="'+k+'"'+(k==='cm'||k==='g'||k==='c'?' selected':'')+'>'+u[k]+'</option>').join('');t.innerHTML=Object.keys(u).map(k=>'<option value="'+k+'"'+(k==='m'||k==='kg'||k==='f'?' selected':'')+'>'+u[k]+'</option>').join('')}
+async function convert(){const r=await fetch('/api/unit-converter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:parseFloat(document.getElementById('value').value),from:document.getElementById('fromUnit').value,to:document.getElementById('toUnit').value,category:document.getElementById('category').value})});const d=await r.json();if(d.error){document.getElementById('result').textContent='Error: '+d.error;return}document.getElementById('result').textContent=document.getElementById('value').value+' '+document.getElementById('fromUnit').value+' = '+d.result+' '+document.getElementById('toUnit').value}
+updateUnits();
+</script>
+
+{% endblock %}
