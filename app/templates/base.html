@@ -89,15 +89,142 @@ function setLang(lang) {
     var lang = navigator.language || navigator.userLanguage;
     var isZh = (tz && (tz.includes('Shanghai') || tz.includes('Beijing') || tz.includes('Chongqing') || tz.includes('Hong_Kong') || tz.includes('Taipei') || tz.includes('Urumqi'))) && lang && lang.startsWith('zh');
     var saved = localStorage.getItem('toolbox_lang');
-    if (saved) {
-        setLang(saved);
-    } else if (isZh) {
-        setLang('zh');
-    } else {
-        setLang('en');
-    }
+    if (saved) { setLang(saved); }
+    else if (isZh) { setLang('zh'); }
+    else { setLang('en'); }
 })();
-const toolNames = {
+
+// Full translation dictionary
+const translations = {
+  'Generate': '生成', 'Generate Hashes': '生成哈希', 'Generate Password': '生成密码',
+  'Format JSON': '格式化 JSON', 'Format': '格式化',
+  'Encode': '编码', 'Decode': '解码', 'Encoder': '编码器', 'Decoder': '解码器',
+  'Convert': '转换', 'Compare': '对比', 'Test': '测试', 'Copy to clipboard': '复制到剪贴板',
+  'Copy All': '全部复制', 'Copy': '复制',
+  'Swap': '交换', 'Clear': '清空',
+  'Enter text to convert...': '输入要转换的文本...',
+  'Enter text to encode/decode...': '输入要编码/解码的文本...',
+  'Enter text to hash...': '输入要哈希的文本...',
+  'Enter HTML...': '输入 HTML...',
+  'Enter your text here...': '在此输入文本...',
+  'Type or paste your text here...': '在此输入或粘贴文本...',
+  'Enter regex pattern (e.g. \\d+)': '输入正则表达式（如 \\d+）',
+  'Enter text to test against...': '输入要测试的文本...',
+  'Original Text': '原始文本', 'Changed Text': '修改后的文本',
+  'Result': '结果', 'Result will appear here...': '结果将显示在此处...',
+  'Formatted JSON will appear here...': '格式化后的 JSON 将显示在此处...',
+  'Matches': '匹配', 'match': '匹配', 'matches': '个匹配', 'found': '找到',
+  'Valid JSON': '有效 JSON', 'Invalid JSON': '无效 JSON',
+  'Length': '长度', 'Value': '值', 'From': '从', 'To': '到',
+  'Category': '类别', 'Count': '数量', 'Unit': '单位',
+  'Words': '词数', 'Characters': '字符数', 'Sentences': '句数', 'Paragraphs': '段数',
+  'Word Count': '字数统计', 'Character Count': '字符统计', 'Sentence Count': '句数统计', 'Paragraph Count': '段落统计',
+  'words': '词', 'characters': '字符', 'sentences': '句', 'paragraphs': '段',
+  'UPPER CASE': '大写', 'lower case': '小写', 'Title Case': '首字母大写', 'Sentence case': '句首大写',
+  'camelCase': '驼峰式', 'snake_case': '下划线式', 'kebab-case': '连接线式',
+  'Uppercase (A-Z)': '大写字母（A-Z）', 'Lowercase (a-z)': '小写字母（a-z）',
+  'Digits (0-9)': '数字（0-9）', 'Symbols (!@#$)': '符号（!@#$）',
+  'Regular Expression': '正则表达式', 'Test Text': '测试文本',
+  'Indent': '缩进', 'indent': '缩进',
+  'Content': '内容', 'Size (px)': '尺寸（像素）',
+  'QR Code Generator': '二维码生成', 'QR Code Reader': '二维码识别',
+  'Generate QR Code': '生成二维码', 'Download PNG': '下载 PNG',
+  'Click to upload or drag and drop an image': '点击上传或拖放图片',
+  'PNG, JPG, WEBP supported': '支持 PNG、JPG、WEBP 格式',
+  'Decoded Result:': '识别结果：',
+  'No QR code found in this image': '未在此图片中找到二维码',
+  'Try a clearer image.': '请尝试更清晰的图片。',
+  'Markdown Input': 'Markdown 输入', 'Preview': '预览',
+  'Write and preview Markdown in real-time': '实时编辑和预览 Markdown',
+  'placeholder text': '占位文本',
+  'Color value': '颜色值', 'Convert from': '从', 'Color preview': '颜色预览',
+  'HEX to RGB': 'HEX 转 RGB', 'RGB to HEX': 'RGB 转 HEX'
+};
+
+function translatePage(lang) {
+    // Translate text nodes using the dictionary
+    var walker = document.createTreeWalker(document.body, 4, null, false);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(node) {
+        var text = node.textContent.trim();
+        if (!text || text.length < 2) return;
+        // Don't translate inside script/style tags
+        if (node.parentNode && ['SCRIPT','STYLE'].includes(node.parentNode.tagName)) return;
+        // Only translate short phrases (buttons, labels)
+        if (text.length > 100) return;
+        if (lang === 'zh' && translations[text]) {
+            node.textContent = node.textContent.replace(text, translations[text]);
+        } else if (lang === 'en' && translations[text]) {
+            // Find reverse translation - crude approach
+            for (var en in translations) {
+                if (translations[en] === text) {
+                    node.textContent = node.textContent.replace(text, en);
+                    break;
+                }
+            }
+        }
+    });
+    // Translate placeholders
+    document.querySelectorAll('[placeholder]').forEach(function(el) {
+        var p = el.getAttribute('placeholder');
+        if (lang === 'zh' && translations[p]) el.setAttribute('placeholder', translations[p]);
+        else if (lang === 'en') {
+            for (var en in translations) {
+                if (translations[en] === p) { el.setAttribute('placeholder', en); break; }
+            }
+        }
+    });
+    // Translate buttons/labels
+    document.querySelectorAll('button, label, h3, .font-medium, th').forEach(function(el) {
+        if (el.querySelector('*')) return; // skip elements with children
+        var t = el.textContent.trim();
+        if (!t || t.length < 2 || t.length > 60) return;
+        if (lang === 'zh' && translations[t]) el.textContent = translations[t];
+        else if (lang === 'en') {
+            for (var en in translations) {
+                if (translations[en] === t) { el.textContent = en; break; }
+            }
+        }
+    });
+}
+
+// Override setLang to include page translation
+var origSetLang = window.setLang;
+window.setLang = function(lang) {
+    localStorage.setItem('toolbox_lang', lang);
+    document.body.classList.remove('en', 'zh');
+    document.body.classList.add(lang);
+    document.getElementById('langEn').classList.toggle('active', lang === 'en');
+    document.getElementById('langZh').classList.toggle('active', lang === 'zh');
+    
+    // Toggle bilingual elements
+    document.querySelectorAll('.lang-en').forEach(function(el) {
+        var d = el.classList.contains('lang-block') ? 'block' : 'inline';
+        el.style.display = lang === 'en' ? d : 'none';
+    });
+    document.querySelectorAll('.lang-zh').forEach(function(el) {
+        var d = el.classList.contains('lang-block') ? 'block' : 'inline';
+        el.style.display = lang === 'zh' ? d : 'none';
+    });
+    
+    // Translate tool cards
+    document.querySelectorAll('.tool-card h3').forEach(function(h3) {
+        var en = h3.getAttribute('data-en') || h3.textContent;
+        if (!h3.getAttribute('data-en')) h3.setAttribute('data-en', h3.textContent);
+        h3.textContent = lang === 'zh' && toolNames[en] ? toolNames[en] : en;
+    });
+    document.querySelectorAll('.tool-card p').forEach(function(p) {
+        var en = p.getAttribute('data-en') || p.textContent;
+        if (!p.getAttribute('data-en')) p.setAttribute('data-en', p.textContent);
+        p.textContent = lang === 'zh' && toolDescs[en] ? toolDescs[en] : en;
+    });
+    
+    // Translate page content
+    translatePage(lang);
+};
+
+const toolNames = { /* same as before */
   'Word Counter': '字数统计', 'Text Case Converter': '文本大小写转换', 'JSON Formatter': 'JSON 格式化',
   'Base64 Encoder/Decoder': 'Base64 编解码', 'URL Encoder/Decoder': 'URL 编解码', 'Hash Generator': '哈希生成器',
   'Text Diff Checker': '文本对比', 'Color Converter': '颜色转换', 'UUID Generator': 'UUID 生成器',
@@ -105,7 +232,7 @@ const toolNames = {
   'Regex Tester': '正则表达式测试', 'Password Generator': '密码生成器', 'Unit Converter': '单位转换',
   'QR Code Generator': '二维码生成', 'QR Code Reader': '二维码识别'
 };
-const toolDescs = {
+const toolDescs = { /* same as before */
   'Word Counter': '统计字数、字符数、句子和段落',
   'Text Case Converter': '在大小写、标题格式等之间自由转换',
   'JSON Formatter': '格式化、验证和美化 JSON 数据',
@@ -124,6 +251,3 @@ const toolDescs = {
   'QR Code Generator': '从文本和链接生成二维码图片',
   'QR Code Reader': '上传图片识别二维码内容'
 };
-</script>
-</body>
- </html>
