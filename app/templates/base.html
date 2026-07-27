@@ -1,90 +1,68 @@
- <!DOCTYPE html>
- <html lang="zh-CN">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>{% block title %}Free Online Tools{% endblock %} - ToolBox</title>
-     <meta name="description" content="{% block meta_desc %}Free online tools: word counter, JSON formatter, Base64 encoder decoder, hash generator, UUID generator and more. No signup required.{% endblock %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Free Online Tools{% endblock %} - ToolBox</title>
+    <meta name="description" content="{% block meta_desc %}Free online tools: word counter, JSON formatter, Base64 encoder decoder, hash generator, UUID generator and more. No signup required.{% endblock %}">
     <meta name="keywords" content="online tools, word counter, json formatter, base64 encode decode, hash generator, uuid generator, regex tester, password generator, unit converter">
     <meta name="robots" content="index, follow">
-     <script src="https://cdn.tailwindcss.com"></script>
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-     <style>
-         * { font-family: 'Inter', system-ui, sans-serif; }
-         body { background: #f8fafc; }
-         .tool-card { transition: all 0.2s ease; }
-         .tool-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
-         .btn-primary { transition: all 0.15s ease; }
-         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-         .spinner { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
-         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-         textarea, input[type="text"], input[type="number"], select { @apply border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm; }
-         textarea { @apply font-mono; }
-     
-        .lang-zh { display: none; }
-        .lang-en { display: inline; }
-        body.zh .lang-zh { display: inline; }
-        body.zh .lang-en { display: none; }
-        .lang-btn { cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; transition: all 0.15s; }
-        .lang-btn.active { background: #3b82f6; color: white; }
-        .lang-btn:not(.active) { background: #e5e7eb; color: #374151; }
-        .lang-btn:hover { opacity: 0.8; }
-    
-        .lang-zh { display: none; }
-        .lang-en { display: inline; }
-        body.zh .lang-zh { display: inline; }
-        body.zh .lang-en { display: none; }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        body { background: #f8fafc; }
+        .tool-card { transition: all 0.2s ease; }
+        .tool-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .btn-primary { transition: all 0.15s ease; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .spinner { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        textarea, input[type="text"], input[type="number"], select { @apply border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm; }
+        textarea { @apply font-mono; }
         .lang-btn { cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; transition: all 0.15s; }
         .lang-btn.active { background: #3b82f6; color: white; }
         .lang-btn:not(.active) { background: #e5e7eb; color: #374151; }
         .lang-btn:hover { opacity: 0.8; }
     </style>
-     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4613836349381729" crossorigin="anonymous"></script>
- <script> (adsbygoogle = window.adsbygoogle || []).push({ google_ad_client: "ca-pub-4613836349381729", enable_page_level_ads: true }); </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4613836349381729" crossorigin="anonymous"></script>
+    <script> (adsbygoogle = window.adsbygoogle || []).push({ google_ad_client: "ca-pub-4613836349381729", enable_page_level_ads: true }); </script>
 </head>
 <body class="min-h-screen">
-     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-             <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-800">
-                 <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">T</span>
-                 ToolBox
-             </a>
-             <span class="lang-en text-xs text-gray-400">Free Online Tools</span><span class="lang-zh text-xs text-gray-400" style="display:none">免费在线工具</span>
-         </div>
-         <div class="flex items-center gap-1 ml-2">
-        <button onclick="setLang('en')" id="langEn" class="lang-btn active">EN</button>
-        <button onclick="setLang('zh')" id="langZh" class="lang-btn">中文</button>
-    </div>
-
-    <div class="flex items-center gap-1">
-        <button onclick="setLang('en')" id="langEn" class="lang-btn active">EN</button>
-        <button onclick="setLang('zh')" id="langZh" class="lang-btn">中文</button>
-    </div>
-</header>
-     <main class="max-w-6xl mx-auto px-4 py-6">
-         {% block content %}{% endblock %}
-     </main>
-     <footer class="bg-white border-t border-gray-200 mt-12">
-         <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-500">
-             <p><span class="lang-en"><span class="lang-en">Free online utility tools. No registration, no limits.</span><span class="lang-zh" style="display:none">免费在线工具，无需注册，无使用限制。</span></span><span class="lang-zh" style="display:none">免费在线工具，无需注册，无使用限制。</span></p>
-             <p class="mt-1">&copy; 2026 ToolBox <span class="lang-en"><span class="lang-en">All tools run in your browser.</span><span class="lang-zh" style="display:none">所有工具均在您的浏览器中运行。</span></span><span class="lang-zh" style="display:none">所有工具均在您的浏览器中运行。</span></p>
-         </div>
-     </footer>
-    
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-800">
+                <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">T</span>
+                ToolBox
+            </a>
+            <div class="flex items-center gap-3">
+                <span class="lang-en text-xs text-gray-400">Free Online Tools</span>
+                <span class="lang-zh text-xs text-gray-400" style="display:none">免费在线工具</span>
+                <button onclick="setLang('en')" id="langEn" class="lang-btn active">EN</button>
+                <button onclick="setLang('zh')" id="langZh" class="lang-btn">中文</button>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-500">
+            <p><span class="lang-en">Free online utility tools. No registration, no limits.</span><span class="lang-zh" style="display:none">免费在线工具，无需注册，无使用限制。</span></p>
+            <p class="mt-1">&copy; 2026 ToolBox. <span class="lang-en">All tools run in your browser.</span><span class="lang-zh" style="display:none">所有工具均在您的浏览器中运行。</span></p>
+        </div>
+    </footer>
     {% block scripts %}{% endblock %}
 
-
-
 <script>
-var toolboxLang = localStorage.getItem('toolbox_lang');
-if (!toolboxLang) {
+var savedLang = localStorage.getItem('toolbox_lang');
+if (!savedLang) {
     var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    var lang = navigator.language || navigator.userLanguage;
-    toolboxLang = (tz && (tz.includes('Shanghai') || tz.includes('Beijing') || tz.includes('Chongqing') || tz.includes('Hong_Kong') || tz.includes('Taipei') || tz.includes('Urumqi'))) && lang && lang.startsWith('zh') ? 'zh' : 'en';
-    localStorage.setItem('toolbox_lang', toolboxLang);
+    var langPref = navigator.language || navigator.userLanguage;
+    savedLang = (tz && (tz.includes('Shanghai') || tz.includes('Beijing') || tz.includes('Chongqing') || tz.includes('Hong_Kong') || tz.includes('Taipei') || tz.includes('Urumqi'))) && langPref && langPref.startsWith('zh') ? 'zh' : 'en';
+    localStorage.setItem('toolbox_lang', savedLang);
 }
-setLang(toolboxLang);
 
 function setLang(lang) {
     localStorage.setItem('toolbox_lang', lang);
@@ -96,46 +74,31 @@ function setLang(lang) {
     if (zhBtn) zhBtn.className = 'lang-btn' + (lang === 'zh' ? ' active' : '');
     document.querySelectorAll('.lang-en').forEach(function(el) {
         el.style.display = lang === 'en' ? (el.classList.contains('lang-block') ? 'block' : 'inline') : 'none';
-    
-    // Translate tool cards
+    });
+    document.querySelectorAll('.lang-zh').forEach(function(el) {
+        el.style.display = lang === 'zh' ? (el.classList.contains('lang-block') ? 'block' : 'inline') : 'none';
+    });
+    translateToolCards(lang);
+    translatePage(lang);
+}
+
+function translateToolCards(lang) {
+    var names = {'Word Counter':'字数统计','Text Case Converter':'文本大小写转换','JSON Formatter':'JSON 格式化','Base64 Encoder/Decoder':'Base64 编解码','URL Encoder/Decoder':'URL 编解码','Hash Generator':'哈希生成器','Text Diff Checker':'文本对比','Color Converter':'颜色转换','UUID Generator':'UUID 生成器','HTML Entity Converter':'HTML 实体转换','Markdown Preview':'Markdown 预览','Lorem Ipsum Generator':'Lorem Ipsum 生成器','Regex Tester':'正则表达式测试','Password Generator':'密码生成器','Unit Converter':'单位转换','QR Code Generator':'二维码生成','QR Code Reader':'二维码识别'};
+    var descs = {'Word Counter':'统计字数、字符数、句子和段落','Text Case Converter':'在大小写、标题格式等之间自由转换','JSON Formatter':'格式化、验证和美化 JSON 数据','Base64 Encoder/Decoder':'快速进行 Base64 编码和解码','URL Encoder/Decoder':'对 URL 进行编码或解码','Hash Generator':'生成 MD5、SHA1、SHA256、SHA512 哈希值','Text Diff Checker':'对比两段文本并高亮差异','Color Converter':'在 HEX、RGB 等颜色格式之间转换','UUID Generator':'批量生成随机 UUID（v4）','HTML Entity Converter':'对 HTML 实体进行转义或反转义','Markdown Preview':'实时编辑和预览 Markdown','Lorem Ipsum Generator':'生成用于排版的占位文本','Regex Tester':'实时测试正则表达式匹配结果','Password Generator':'生成高强度随机密码','Unit Converter':'在长度、重量、温度等单位之间转换','QR Code Generator':'从文本和链接生成二维码图片','QR Code Reader':'上传图片识别二维码内容'};
     document.querySelectorAll('.tool-card h3').forEach(function(h3) {
         var en = h3.getAttribute('data-en') || h3.textContent;
         if (!h3.getAttribute('data-en')) h3.setAttribute('data-en', en);
-        h3.textContent = lang === 'zh' && toolNames[en] ? toolNames[en] : en;
+        h3.textContent = lang === 'zh' && names[en] ? names[en] : en;
     });
     document.querySelectorAll('.tool-card p').forEach(function(p) {
         var en = p.getAttribute('data-en') || p.textContent;
         if (!p.getAttribute('data-en')) p.setAttribute('data-en', en);
-        p.textContent = lang === 'zh' && toolDescs[en] ? toolDescs[en] : en;
+        p.textContent = lang === 'zh' && descs[en] ? descs[en] : en;
     });
-    translatePage(lang);
 }
+
 function translatePage(lang) {
-    var dict = {
-        'Generate': '生成', 'Generate Hashes': '生成哈希', 'Generate Password': '生成密码',
-        'Generate QR Code': '生成二维码', 'Format JSON': '格式化 JSON',
-        'Encode': '编码', 'Decode': '解码', 'Escape': '转义', 'Unescape': '反转义',
-        'Convert': '转换', 'Compare': '对比', 'Test': '测试',
-        'Copy to clipboard': '复制到剪贴板', 'Copy All': '全部复制',
-        'Swap': '交换', 'Download PNG': '下载 PNG',
-        'UPPER CASE': '大写', 'lower case': '小写', 'Title Case': '首字母大写',
-        'Sentence case': '句首大写', 'camelCase': '驼峰式', 'snake_case': '下划线式', 'kebab-case': '连接线式',
-        'Words': '词', 'Characters': '字符', 'Sentences': '句', 'Paragraphs': '段',
-        'Valid JSON': '有效 JSON', 'Invalid JSON': '无效 JSON',
-        'Uppercase (A-Z)': '大写字母', 'Lowercase (a-z)': '小写字母',
-        'Digits (0-9)': '数字', 'Symbols (!@#$)': '符号',
-        'Regular Expression': '正则表达式', 'Test Text': '测试文本',
-        'Markdown Input': 'Markdown 输入', 'Preview': '预览',
-        'Color value': '颜色值', 'Color preview': '颜色预览',
-        'HEX to RGB': 'HEX 转 RGB', 'RGB to HEX': 'RGB 转 HEX',
-        'Length': '长度', 'Weight': '重量', 'Temperature': '温度',
-        'Value': '值', 'From': '从', 'To': '到', 'Category': '类型', 'Count': '个数', 'Unit': '单位',
-        'Content': '内容', 'Size (px)': '尺寸（像素）',
-        'Indent': '缩进', 'Original Text': '原始文本', 'Changed Text': '修改后文本',
-        'Paragraphs': '段落', 'Sentences': '句子',
-        'Copy': '复制', 'Result': '结果',
-        'Format': '格式化', 'Compare': '对比', 'Swap': '交换'
-    };
+    var dict = {'Generate':'生成','Generate Hashes':'生成哈希','Generate Password':'生成密码','Generate QR Code':'生成二维码','Format JSON':'格式化 JSON','Format':'格式化','Encode':'编码','Decode':'解码','Escape':'转义','Unescape':'反转义','Convert':'转换','Compare':'对比','Test':'测试','Copy to clipboard':'复制到剪贴板','Copy All':'全部复制','Swap':'交换','Download PNG':'下载 PNG','UPPER CASE':'大写','lower case':'小写','Title Case':'首字母大写','Sentence case':'句首大写','camelCase':'驼峰式','snake_case':'下划线式','kebab-case':'连接线式','Words':'词','Characters':'字符','Sentences':'句','Paragraphs':'段','Valid JSON':'有效 JSON','Invalid JSON':'无效 JSON','Uppercase (A-Z)':'大写字母','Lowercase (a-z)':'小写字母','Digits (0-9)':'数字','Regular Expression':'正则表达式','Test Text':'测试文本','Markdown Input':'Markdown 输入','Preview':'预览','Color value':'颜色值','Color preview':'颜色预览','HEX to RGB':'HEX 转 RGB','RGB to HEX':'RGB 转 HEX','Length':'长度','Weight':'重量','Temperature':'温度','Value':'值','From':'从','To':'到','Category':'类型','Count':'个数','Unit':'单位','Content':'内容','Size (px)':'尺寸（像素）','Indent':'缩进','Original Text':'原始文本','Changed Text':'修改后文本','Copy':'复制','Result':'结果','Word Count':'词数','Character Count':'字符数','Sentence Count':'句数','Paragraph Count':'段落数'};
     var walker = document.createTreeWalker(document.body, 4, null, false);
     var nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
@@ -143,14 +106,10 @@ function translatePage(lang) {
         var text = node.textContent.trim();
         if (!text || text.length > 80) return;
         if (node.parentNode && ['SCRIPT','STYLE','TEXTAREA','INPUT','SELECT'].includes(node.parentNode.tagName)) return;
-        if (lang === 'zh' && dict[text]) {
-            node.textContent = node.textContent.replace(text, dict[text]);
-        } else if (lang === 'en') {
+        if (lang === 'zh' && dict[text]) node.textContent = node.textContent.replace(text, dict[text]);
+        else if (lang === 'en') {
             for (var en in dict) {
-                if (dict[en] === text) {
-                    node.textContent = node.textContent.replace(text, en);
-                    break;
-                }
+                if (dict[en] === text) { node.textContent = node.textContent.replace(text, en); break; }
             }
         }
     });
@@ -165,38 +124,7 @@ function translatePage(lang) {
     });
 }
 
-const toolNames = {
-  'Word Counter': '字数统计', 'Text Case Converter': '文本大小写转换', 'JSON Formatter': 'JSON 格式化',
-  'Base64 Encoder/Decoder': 'Base64 编解码', 'URL Encoder/Decoder': 'URL 编解码', 'Hash Generator': '哈希生成器',
-  'Text Diff Checker': '文本对比', 'Color Converter': '颜色转换', 'UUID Generator': 'UUID 生成器',
-  'HTML Entity Converter': 'HTML 实体转换', 'Markdown Preview': 'Markdown 预览', 'Lorem Ipsum Generator': 'Lorem Ipsum 生成器',
-  'Regex Tester': '正则表达式测试', 'Password Generator': '密码生成器', 'Unit Converter': '单位转换',
-  'QR Code Generator': '二维码生成', 'QR Code Reader': '二维码识别'
-};
-const toolDescs = {
-  'Word Counter': '统计字数、字符数、句子和段落',
-  'Text Case Converter': '在大小写、标题格式等之间自由转换',
-  'JSON Formatter': '格式化、验证和美化 JSON 数据',
-  'Base64 Encoder/Decoder': '快速进行 Base64 编码和解码',
-  'URL Encoder/Decoder': '对 URL 进行编码或解码',
-  'Hash Generator': '生成 MD5、SHA1、SHA256、SHA512 哈希值',
-  'Text Diff Checker': '对比两段文本并高亮差异',
-  'Color Converter': '在 HEX、RGB 等颜色格式之间转换',
-  'UUID Generator': '批量生成随机 UUID（v4）',
-  'HTML Entity Converter': '对 HTML 实体进行转义或反转义',
-  'Markdown Preview': '实时编辑和预览 Markdown',
-  'Lorem Ipsum Generator': '生成用于排版的占位文本',
-  'Regex Tester': '实时测试正则表达式匹配结果',
-  'Password Generator': '生成高强度随机密码',
-  'Unit Converter': '在长度、重量、温度等单位之间转换',
-  'QR Code Generator': '从文本和链接生成二维码图片',
-  'QR Code Reader': '上传图片识别二维码内容'
-};
-);
-    document.querySelectorAll('.lang-zh').forEach(function(el) {
-        el.style.display = lang === 'zh' ? (el.classList.contains('lang-block') ? 'block' : 'inline') : 'none';
-    });
-}
+setLang(savedLang);
 </script>
 </body>
 </html>
