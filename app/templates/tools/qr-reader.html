@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}QR Code Reader - Decode QR Codes Online Free{% endblock %}
+{% block meta_desc %}Upload an image and read any QR code from it. Free online QR code decoder and scanner.{% endblock %}
+{% block content %}
+<div class="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">QR Code Reader</h1>
+    <p class="text-gray-500 mb-6">Upload an image containing a QR code to decode it.</p>
+    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center mb-4" id="dropZone">
+        <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <p class="text-gray-500 mb-2">Click to upload or drag and drop an image</p>
+        <p class="text-xs text-gray-400">PNG, JPG, WEBP supported</p>
+        <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="readQR(this)">
+    </div>
+    <div id="qrReaderResult" class="hidden bg-green-50 rounded-lg p-4 mb-4">
+        <div class="text-sm font-medium text-green-800 mb-1">Decoded Result:</div>
+        <div id="decodedText" class="text-sm text-green-700 font-mono break-all"></div>
+    </div>
+    <div id="qrReaderError" class="hidden bg-red-50 rounded-lg p-4"></div>
+</div>
+<script>
+document.getElementById('dropZone').addEventListener('click',()=>document.getElementById('fileInput').click());
+async function readQR(input){const f=input.files[0];if(!f)return;const fd=new FormData();fd.append('image',f);document.getElementById('qrReaderResult').classList.add('hidden');document.getElementById('qrReaderError').classList.add('hidden');document.getElementById('dropZone').innerHTML='<div class="spinner mx-auto mb-2"></div><p class="text-gray-500">Decoding...</p>';try{const r=await fetch('/api/qr-reader',{method:'POST',body:fd});const j=await r.json();if(j.error){document.getElementById('qrReaderError').innerHTML=j.error;document.getElementById('qrReaderError').classList.remove('hidden');return}document.getElementById('decodedText').textContent=j.texts.join('\n');document.getElementById('qrReaderResult').classList.remove('hidden')}catch(e){document.getElementById('qrReaderError').textContent='Error: '+e.message;document.getElementById('qrReaderError').classList.remove('hidden')}document.getElementById('dropZone').innerHTML='<svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><p class="text-gray-500">Click to upload another image</p><input type="file" id="fileInput" accept="image/*" class="hidden" onchange="readQR(this)">'}
+</script>
+{% endblock %}

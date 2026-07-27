@@ -19,6 +19,8 @@ TOOLS = [
     {"id": "regex-tester", "name": "Regex Tester", "desc": "Test regular expressions with real-time matching", "icon": "search"},
     {"id": "password-generator", "name": "Password Generator", "desc": "Generate strong random passwords", "icon": "key"},
     {"id": "unit-converter", "name": "Unit Converter", "desc": "Convert between length, weight, temperature and more", "icon": "ruler"},
+    {'id': 'qr-generator', 'name': 'QR Code Generator', 'desc': 'Generate QR codes from text, URLs and more', 'icon': 'qr-code'},
+    {'id': 'qr-reader', 'name': 'QR Code Reader', 'desc': 'Decode and read QR codes from images', 'icon': 'camera'},
 ]
 
 @main.route("/")
@@ -198,6 +200,39 @@ def api_password_generator():
     return jsonify(password=password)
 
 @main.route("/api/unit-converter", methods=["POST"])
+
+@main.route('/api/qr-generator', methods=['POST'])
+def api_qr_generator():
+    import qrcode, io, base64
+    data = request.json.get('data', '')
+    size = int(request.json.get('size', 200))
+    if not data:
+        return jsonify(error='No data provided')
+    qr = qrcode.QRCode(box_size=10, border=2)
+    qr.add_data(data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color='black', back_color='white')
+    img = img.resize((size, size))
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    return jsonify(image='data:image/png;base64,' + b64, error=None)
+
+@main.route('/api/qr-reader', methods=['POST'])
+def api_qr_reader():
+    from PIL import Image
+    import io
+    try:
+        file = request.files['image']
+        img = Image.open(file.stream)
+        from pyzbar.pyzbar import decode
+        results = decode(img)
+        if results:
+            texts = [r.data.decode('utf-8') for r in results]
+            return jsonify(texts=texts, count=len(texts), error=None)
+        return jsonify(texts=[], count=0, error='No QR code found in image')
+    except Exception as e:
+        return jsonify(texts=[], count=0, error=str(e))
 def api_unit_converter():
     value = float(request.json.get("value", 0))
     from_unit = request.json.get("from", "cm")
