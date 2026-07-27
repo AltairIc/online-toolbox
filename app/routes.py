@@ -218,41 +218,4 @@ def api_qr_generator():
     b64 = base64.b64encode(buf.getvalue()).decode()
     return jsonify(image='data:image/png;base64,' + b64, error=None)
 
-@main.route('/api/qr-reader', methods=['POST'])
-def api_qr_reader():
-    from PIL import Image
-    import io
-    try:
-        file = request.files['image']
-        img = Image.open(file.stream)
-        from pyzbar.pyzbar import decode
-        results = decode(img)
-        if results:
-            texts = [r.data.decode('utf-8') for r in results]
-            return jsonify(texts=texts, count=len(texts), error=None)
-        return jsonify(texts=[], count=0, error='No QR code found in image')
-    except Exception as e:
-        return jsonify(texts=[], count=0, error=str(e))
-def api_unit_converter():
-    value = float(request.json.get("value", 0))
-    from_unit = request.json.get("from", "cm")
-    to_unit = request.json.get("to", "m")
-    category = request.json.get("category", "length")
-    length_units = {"mm": 0.001, "cm": 0.01, "m": 1.0, "km": 1000.0, "in": 0.0254, "ft": 0.3048, "yd": 0.9144, "mi": 1609.344}
-    weight_units = {"mg": 0.001, "g": 1.0, "kg": 1000.0, "oz": 28.3495, "lb": 453.592}
-    try:
-        if category == "temperature":
-            if from_unit == "c" and to_unit == "f": result = value * 9/5 + 32
-            elif from_unit == "f" and to_unit == "c": result = (value - 32) * 5/9
-            elif from_unit == "c" and to_unit == "k": result = value + 273.15
-            elif from_unit == "k" and to_unit == "c": result = value - 273.15
-            elif from_unit == "f" and to_unit == "k": result = (value - 32) * 5/9 + 273.15
-            elif from_unit == "k" and to_unit == "f": result = (value - 273.15) * 9/5 + 32
-            else: result = value
-        elif category == "weight":
-            result = value * weight_units[from_unit] / weight_units[to_unit]
-        else:
-            result = value * length_units[from_unit] / length_units[to_unit]
-        return jsonify(result=round(result, 6), error=None)
-    except Exception as e:
-        return jsonify(result=None, error=str(e))
+
