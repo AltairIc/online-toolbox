@@ -21,7 +21,16 @@
          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
          textarea, input[type="text"], input[type="number"], select { @apply border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm; }
          textarea { @apply font-mono; }
-     </style>
+     
+        .lang-zh { display: none; }
+        .lang-en { display: inline; }
+        body.zh .lang-zh { display: inline; }
+        body.zh .lang-en { display: none; }
+        .lang-btn { cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; transition: all 0.15s; }
+        .lang-btn.active { background: #3b82f6; color: white; }
+        .lang-btn:not(.active) { background: #e5e7eb; color: #374151; }
+        .lang-btn:hover { opacity: 0.8; }
+    </style>
      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4613836349381729" crossorigin="anonymous"></script>
  <script> (adsbygoogle = window.adsbygoogle || []).push({ google_ad_client: "ca-pub-4613836349381729", enable_page_level_ads: true }); </script>
 </head>
@@ -32,18 +41,89 @@
                  <span class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">T</span>
                  ToolBox
              </a>
-             <span class="text-xs text-gray-400">Free Online Tools</span>
+             <span class="lang-en text-xs text-gray-400">Free Online Tools</span><span class="lang-zh text-xs text-gray-400" style="display:none">免费在线工具</span>
          </div>
-     </header>
+         <div class="flex items-center gap-1 ml-2">
+        <button onclick="setLang('en')" id="langEn" class="lang-btn active">EN</button>
+        <button onclick="setLang('zh')" id="langZh" class="lang-btn">中文</button>
+    </div>
+</header>
      <main class="max-w-6xl mx-auto px-4 py-6">
          {% block content %}{% endblock %}
      </main>
      <footer class="bg-white border-t border-gray-200 mt-12">
          <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-500">
-             <p>Free online utility tools. No registration, no limits.</p>
-             <p class="mt-1">&copy; 2026 ToolBox All tools run in your browser.</p>
+             <p><span class="lang-en">Free online utility tools. No registration, no limits.</span><span class="lang-zh" style="display:none">免费在线工具，无需注册，无使用限制。</span></p>
+             <p class="mt-1">&copy; 2026 ToolBox <span class="lang-en">All tools run in your browser.</span><span class="lang-zh" style="display:none">所有工具均在您的浏览器中运行。</span></p>
          </div>
      </footer>
      {% block scripts %}{% endblock %}
- </body>
+ 
+<script>
+function setLang(lang) {
+    localStorage.setItem('toolbox_lang', lang);
+    document.body.classList.remove('en', 'zh');
+    document.body.classList.add(lang);
+    document.getElementById('langEn').classList.toggle('active', lang === 'en');
+    document.getElementById('langZh').classList.toggle('active', lang === 'zh');
+    document.querySelectorAll('.lang-en').forEach(el => { var d = el.classList.contains('lang-block') ? 'block' : 'inline'; el.style.display = lang === 'en' ? d : 'none'; });
+    document.querySelectorAll('.lang-zh').forEach(el => { var d = el.classList.contains('lang-block') ? 'block' : 'inline'; el.style.display = lang === 'zh' ? d : 'none'; });
+    // Also handle block/inline-block elements
+    document.querySelectorAll('.lang-en.lang-block').forEach(el => el.style.display = lang === 'en' ? 'block' : 'none');
+    document.querySelectorAll('.lang-zh.lang-block').forEach(el => el.style.display = lang === 'zh' ? 'block' : 'none');
+    // Translate tool cards
+    document.querySelectorAll('.tool-card h3').forEach(h3 => {
+        var en = h3.getAttribute('data-en') || h3.textContent;
+        if (!h3.getAttribute('data-en')) h3.setAttribute('data-en', h3.textContent);
+        h3.textContent = lang === 'zh' && toolNames[en] ? toolNames[en] : en;
+    });
+    document.querySelectorAll('.tool-card p').forEach(p => {
+        var en = p.getAttribute('data-en') || p.textContent;
+        if (!p.getAttribute('data-en')) p.setAttribute('data-en', p.textContent);
+        p.textContent = lang === 'zh' && toolDescs[en] ? toolDescs[en] : en;
+    });
+}
+// Auto-detect: Chinese timezone + Chinese language preference
+(function() {
+    var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var lang = navigator.language || navigator.userLanguage;
+    var isZh = (tz && (tz.includes('Shanghai') || tz.includes('Beijing') || tz.includes('Chongqing') || tz.includes('Hong_Kong') || tz.includes('Taipei') || tz.includes('Urumqi'))) && lang && lang.startsWith('zh');
+    var saved = localStorage.getItem('toolbox_lang');
+    if (saved) {
+        setLang(saved);
+    } else if (isZh) {
+        setLang('zh');
+    } else {
+        setLang('en');
+    }
+})();
+const toolNames = {
+  'Word Counter': '字数统计', 'Text Case Converter': '文本大小写转换', 'JSON Formatter': 'JSON 格式化',
+  'Base64 Encoder/Decoder': 'Base64 编解码', 'URL Encoder/Decoder': 'URL 编解码', 'Hash Generator': '哈希生成器',
+  'Text Diff Checker': '文本对比', 'Color Converter': '颜色转换', 'UUID Generator': 'UUID 生成器',
+  'HTML Entity Converter': 'HTML 实体转换', 'Markdown Preview': 'Markdown 预览', 'Lorem Ipsum Generator': 'Lorem Ipsum 生成器',
+  'Regex Tester': '正则表达式测试', 'Password Generator': '密码生成器', 'Unit Converter': '单位转换',
+  'QR Code Generator': '二维码生成', 'QR Code Reader': '二维码识别'
+};
+const toolDescs = {
+  'Word Counter': '统计字数、字符数、句子和段落',
+  'Text Case Converter': '在大小写、标题格式等之间自由转换',
+  'JSON Formatter': '格式化、验证和美化 JSON 数据',
+  'Base64 Encoder/Decoder': '快速进行 Base64 编码和解码',
+  'URL Encoder/Decoder': '对 URL 进行编码或解码',
+  'Hash Generator': '生成 MD5、SHA1、SHA256、SHA512 哈希值',
+  'Text Diff Checker': '对比两段文本并高亮差异',
+  'Color Converter': '在 HEX、RGB 等颜色格式之间转换',
+  'UUID Generator': '批量生成随机 UUID（v4）',
+  'HTML Entity Converter': '对 HTML 实体进行转义或反转义',
+  'Markdown Preview': '实时编辑和预览 Markdown',
+  'Lorem Ipsum Generator': '生成用于排版的占位文本',
+  'Regex Tester': '实时测试正则表达式匹配结果',
+  'Password Generator': '生成高强度随机密码',
+  'Unit Converter': '在长度、重量、温度等单位之间转换',
+  'QR Code Generator': '从文本和链接生成二维码图片',
+  'QR Code Reader': '上传图片识别二维码内容'
+};
+</script>
+</body>
  </html>
