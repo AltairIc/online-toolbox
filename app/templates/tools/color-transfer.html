@@ -8,13 +8,13 @@
         <p class="text-gray-500 mb-6"><span class="lang-en">Match the color tone and mood of a reference image onto your photo in one click.</span><span class="lang-zh" style="display:none">一键将参考图的色调和氛围应用到你的照片上。</span></p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition" id="refZone">
-                <input type="file" id="refInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition" class="relative"  style="position:relative" id="refZone">
+                <input type="file" id="refInput" accept="image/*" class="relative absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <p class="text-sm font-medium text-gray-600"><span class="lang-en">Reference Image</span><span class="lang-zh" style="display:none">参考图</span></p>
                 <p class="text-xs text-gray-400 mt-1" id="refHint"><span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span></p>
                 <img id="refPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
             </div>
-            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition" id="targetZone">
+            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition"  style="position:relative" id="targetZone">
                 <input type="file" id="targetInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <p class="text-sm font-medium text-gray-600"><span class="lang-en">Your Photo</span><span class="lang-zh" style="display:none">你的照片</span></p>
                 <p class="text-xs text-gray-400 mt-1" id="targetHint"><span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span></p>
