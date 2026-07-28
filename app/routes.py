@@ -27,6 +27,10 @@ TOOLS = [
     {"id": "image-compare", "cat": "image", "name": "Image Compare", "desc": "Compare two images side by side with a draggable slider", "icon": "git-compare"},
     {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"}]
 
+
+@main.route("/ads.txt")
+def ads_txt():
+    return "google.com, pub-4613836349381729, DIRECT, f08c47fec0942fa0\n", 200, {"Content-Type": "text/plain"}
 @main.route("/")
 def index():
     return render_template("index.html", tools=TOOLS)
