@@ -99,71 +99,59 @@ function translateToolCards(lang) {
 
 function translatePage(lang) {
     var dict = {
-    'Generate': '生成', 'Generate Hashes': '生成哈希', 'Generate Password': '生成密码',
-    'Generate QR Code': '生成二维码', 'Generate UUIDs': '生成 UUID',
-    'Format JSON': '格式化 JSON', 'Format': '格式化',
-    'Encode': '编码', 'Decode': '解码', 'Escape': '转义', 'Unescape': '反转义',
-    'Convert': '转换', 'Compare': '对比', 'Test': '测试', 'Test Regex': '测试正则',
-    'Copy to clipboard': '复制到剪贴板', 'Copy All': '全部复制', 'Copy': '复制',
-    'Swap': '交换', 'Swap ↑↓': '交换', 'Download PNG': '下载 PNG',
-    'UPPER CASE': '大写', 'lower case': '小写', 'Title Case': '首字母大写',
-    'Sentence case': '句首大写', 'camelCase': '驼峰式', 'snake_case': '下划线式', 'kebab-case': '连接线式',
-    'Words': '词', 'Characters': '字符', 'Sentences': '句', 'Paragraphs': '段落',
-    'Valid JSON': '有效 JSON', 'Invalid JSON': '无效 JSON',
-    'Uppercase (A-Z)': '大写字母', 'Lowercase (a-z)': '小写字母',
-    'Digits (0-9)': '数字', 'Symbols (!@#$)': '符号',
-    'Regular Expression': '正则表达式', 'Test Text': '测试文本',
-    'Markdown Input': 'Markdown 输入', 'Preview': '预览',
-    'Color value': '颜色值', 'Color preview': '颜色预览',
-    'HEX to RGB': 'HEX 转 RGB', 'RGB to HEX': 'RGB 转 HEX',
-    'Length': '长度', 'Weight': '重量', 'Temperature': '温度',
-    'Value': '值', 'From': '从', 'To': '到', 'Category': '类型', 'Count': '数量', 'Unit': '单位',
-    'Content': '内容', 'Size (px)': '尺寸（像素）',
-    'Indent': '缩进', 'Indent:': '缩进：', 'Original Text': '原始文本', 'Changed Text': '修改后文本',
-    'Result': '结果', 'Length:': '长度：', 'Count:': '数量：', 'Unit:': '单位：',
-    'Word Count': '词数', 'Character Count': '字符数', 'Sentence Count': '句数', 'Paragraph Count': '段落数',
-    'Clear All': '清除全部', 'Picked Colors': '已取颜色', 'Export Palette': '导出色板',
-    'Zoom:': '缩放：', '1x': '1x',
-    'Click on the image to pick a color': '点击图片取色',
-    'Click on the image to start picking colors': '点击图片开始取色',
-    'Decoded Result:': '解码结果：', 'Decoding...': '解码中...',
-    'PNG, JPG, WEBP': 'PNG、JPG、WEBP', 'PNG, JPG, WEBP supported': '支持 PNG、JPG、WEBP 格式',
-    'Click to upload or drag an image': '点击上传或拖拽图片',
-    'Click to upload or drag and drop an image': '点击上传或拖拽图片',
-    'No QR code found in this image': '未在此图片中找到二维码',
-    'Try a clearer image.': '请尝试更清晰的图片。',
-    
-    '字数统计': 'Word Counter', '文本大小写转换': 'Text Case Converter',
-    '颜色转换': 'Color Converter', '单位转换': 'Unit Converter',
-    '哈希生成器': 'Hash Generator', '密码生成器': 'Password Generator',
-    '正则表达式测试': 'Regex Tester', 'JSON 格式化': 'JSON Formatter',
-    'Markdown 预览': 'Markdown Preview', '文本对比': 'Text Diff Checker',
-    'UUID 生成器': 'UUID Generator', '二维码生成': 'QR Code Generator',
-    '二维码识别': 'QR Code Reader', '图片取色器': 'Color Picker from Image',
-    'Lorem Ipsum 生成器': 'Lorem Ipsum Generator', 'HTML 实体转换': 'HTML Entity Converter',
-    'Base64 编解码': 'Base64 Encoder/Decoder', 'URL 编解码': 'URL Encoder/Decoder'
-}
-    var walker = document.createTreeWalker(document.body, 4, null, false);
-    var nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(function(node) {
-        var text = node.textContent.trim();
-        if (!text || text.length > 80) return;
-        if (node.parentNode && ['SCRIPT','STYLE','TEXTAREA','INPUT','SELECT'].includes(node.parentNode.tagName)) return;
-        if (lang === 'zh' && dict[text]) node.textContent = node.textContent.replace(text, dict[text]);
-        else if (lang === 'en') {
-            for (var en in dict) {
-                if (dict[en] === text) { node.textContent = node.textContent.replace(text, en); break; }
-            }
+        'Generate': '生成', 'Generate Hashes': '生成哈希', 'Generate Password': '生成密码',
+        'Generate QR Code': '生成二维码', 'Generate UUIDs': '生成 UUID',
+        'Format JSON': '格式化 JSON', 'Format': '格式化',
+        'Encode': '编码', 'Decode': '解码', 'Escape': '转义', 'Unescape': '反转义',
+        'Convert': '转换', 'Compare': '对比', 'Test': '测试', 'Test Regex': '测试正则',
+        'Copy to clipboard': '复制到剪贴板', 'Copy All': '全部复制', 'Copy': '复制',
+        'Swap': '交换', 'Download PNG': '下载 PNG',
+        'UPPER CASE': '大写', 'lower case': '小写', 'Title Case': '首字母大写',
+        'Sentence case': '句首大写', 'camelCase': '驼峰式', 'snake_case': '下划线式', 'kebab-case': '连接线式',
+        'Words': '词', 'Characters': '字符', 'Sentences': '句', 'Paragraphs': '段落',
+        'Valid JSON': '有效 JSON', 'Invalid JSON': '无效 JSON',
+        'Uppercase (A-Z)': '大写字母', 'Lowercase (a-z)': '小写字母',
+        'Digits (0-9)': '数字', 'Symbols (!@#$)': '符号',
+        'Regular Expression': '正则表达式', 'Test Text': '测试文本',
+        'Markdown Input': 'Markdown 输入', 'Preview': '预览',
+        'Color value': '颜色值', 'Color preview': '颜色预览',
+        'HEX to RGB': 'HEX 转 RGB', 'RGB to HEX': 'RGB 转 HEX',
+        'Length': '长度', 'Weight': '重量', 'Temperature': '温度',
+        'Value': '值', 'From': '从', 'To': '到', 'Category': '类型', 'Count': '数量', 'Unit': '单位',
+        'Content': '内容', 'Size (px)': '尺寸（像素）',
+        'Indent': '缩进', 'Original Text': '原始文本', 'Changed Text': '修改后文本',
+        'Result': '结果', 'Clear All': '清除全部', 'Picked Colors': '已取颜色',
+        'Export Palette': '导出色板', 'Zoom:': '缩放：',
+        'Click on the image to pick a color': '点击图片取色',
+        'Click on the image to start picking colors': '点击图片开始取色',
+        'Decoded Result:': '解码结果：', 'Decoding...': '解码中...',
+        'PNG, JPG, WEBP supported': '支持 PNG、JPG、WEBP',
+        'Click to upload or drag an image': '点击上传或拖拽图片',
+        'No QR code found in this image': '未在图片中找到二维码',
+        'UUID Generator': 'UUID 生成器', 'Password Generator': '密码生成器',
+        'Hash Generator': '哈希生成器', 'Color Converter': '颜色转换',
+        'Unit Converter': '单位转换', 'Text Diff Checker': '文本对比',
+        'Lorem Ipsum Generator': 'Lorem Ipsum 生成器', 'Regex Tester': '正则测试'
+    };
+    // Use querySelectorAll on specific element types for reliable translation
+    var targets = document.querySelectorAll('h1, h2, h3, label, button, option, th, td, p, span, div');
+    targets.forEach(function(el) {
+        if (el.querySelector('*')) return; // skip elements with children to avoid nested translation
+        var t = el.textContent.trim();
+        if (!t || t.length > 100) return;
+        var d = (lang === 'zh') ? dict : {};
+        // For English, reverse lookup
+        if (lang === 'en') {
+            for (var k in dict) { if (dict[k] === t) { d[t] = k; break; } }
         }
+        if (d[t]) el.textContent = d[t];
     });
+    // Also translate placeholders
     document.querySelectorAll('[placeholder]').forEach(function(el) {
-        var p = el.getAttribute('placeholder');
-        if (lang === 'zh' && dict[p]) el.setAttribute('placeholder', dict[p]);
+        var p2 = el.getAttribute('placeholder');
+        if (lang === 'zh' && dict[p2]) el.setAttribute('placeholder', dict[p2]);
         else if (lang === 'en') {
-            for (var en in dict) {
-                if (dict[en] === p) { el.setAttribute('placeholder', en); break; }
-            }
+            for (var k in dict) { if (dict[k] === p2) { el.setAttribute('placeholder', k); break; } }
         }
     });
 }
