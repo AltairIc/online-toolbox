@@ -42,36 +42,47 @@ def contact():
 
 @main.route('/api/guestbook', methods=['POST'])
 def guestbook():
-    import json, os
+    token = token
+    import json, urllib.request, datetime
     data = request.json
     if not data or not data.get('name') or not data.get('message'):
         return jsonify(success=False, error='Name and message required')
-    import datetime
-    entry = {
-        'name': data['name'][:50],
-        'message': data['message'][:500],
-        'email': data.get('email', '')[:100],
-        'time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-    }
-    filepath = os.path.join(os.path.dirname(__file__), '..', 'messages.json')
-    messages = []
-    if os.path.exists(filepath):
-        try: messages = json.load(open(filepath))
-        except: pass
-    messages.insert(0, entry)
-    if len(messages) > 100: messages = messages[:100]
-    json.dump(messages, open(filepath, 'w'), indent=2)
-    return jsonify(success=True, entry=entry)
+    name = data['name'][:50]
+    msg = data['message'][:500]
+    email = data.get('email', '')[:100]
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+    body = f"**From:** {name}\n**Email:** {email or 'N/A'}\n**Time:** {now}\n\n{msg}"
+    gh_data = json.dumps({"title": f"Guestbook: {name}", "body": body}).encode()
+    req = urllib.request.Request("https://api.github.com/repos/AltairIc/online-toolbox/issues", data=gh_data, headers={"Authorization": f'Bearer {token}', "Content-Type": "application/json", "User-Agent": "Codex"})
+    try:
+        resp = urllib.request.urlopen(req, timeout=10)
+        result = json.loads(resp.read())
+        return jsonify(success=True)
+    except Exception as e:
+        return jsonify(success=False, error=str(e)[:100])
 
-@main.route('/api/guestbook', methods=['GET'])
 def get_guestbook():
-    import json, os
-    filepath = os.path.join(os.path.dirname(__file__), '..', 'messages.json')
-    messages = []
-    if os.path.exists(filepath):
-        try: messages = json.load(open(filepath))
-        except: pass
-    return jsonify(messages=messages)
+    token = token
+    import json, urllib.request
+    try:
+        req = urllib.request.Request("https://api.github.com/repos/AltairIc/online-toolbox/issues?state=all&per_page=50", headers={"Authorization": "Bearer token", "User-Agent": "Codex"})
+        resp = urllib.request.urlopen(req, timeout=10)
+        issues = json.loads(resp.read())
+        messages = []
+        for issue in issues:
+            if not (issue.get("title") or "").startswith("Guestbook:"): continue
+            body = issue.get("body") or ""
+            body = body.replace("**From:** ", "|||name:").replace("**Email:** ", "|||email:").replace("**Time:** ", "|||time:")
+            name = "Anonymous"; email = ""; time = ""; msg_text = ""
+            for part in body.split("|||"):
+                if part.startswith("name:"): name = part.replace("name:", "").strip()
+                elif part.startswith("email:"): email = part.replace("email:", "").strip()
+                elif part.startswith("time:"): time = part.replace("time:", "").strip()
+                else: msg_text += part.strip() + " "
+            messages.append({"name": name, "email": "" if email == "N/A" else email, "message": msg_text.strip(), "time": time or issue.get("created_at","")[:10]})
+        return jsonify(messages=messages)
+    except Exception as e:
+        return jsonify(messages=[], error=str(e)[:100])
 
 @main.route("/ads.txt")
 def ads_txt():
