@@ -30,7 +30,24 @@
 
         <div id="palette" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6"></div>
 
-        <div class="flex justify-between items-center">
+        <div id="importedSection" class="hidden">
+            <h3 class="font-semibold text-gray-900 mb-3"><span class="lang-en">Imported Palette</span><span class="lang-zh" style="display:none">导入的色板</span></h3>
+            <div id="importedGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6"></div>
+        </div>
+
+        <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+    <h3 class="text-sm font-semibold text-gray-700 mb-2"><span class="lang-en">Import Colors</span><span class="lang-zh" style="display:none">批量导入</span></h3>
+    <textarea id="importText" rows="4" class="w-full font-mono text-sm mb-2" placeholder="#ff0000
+#00ff00
+#0000ff"></textarea>
+    <div class="flex gap-2">
+        <button onclick="importColors()" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"><span class="lang-en">Import</span><span class="lang-zh" style="display:none">导入</span></button>
+        <button onclick="clearImported()" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"><span class="lang-en">Clear</span><span class="lang-zh" style="display:none">清除</span></button>
+        <span id="importCount" class="text-xs text-gray-400 self-center"></span>
+    </div>
+</div>
+
+<div class="flex justify-between items-center">
             <button onclick="copyAll()" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"><span class="lang-en">Copy All HEX</span><span class="lang-zh" style="display:none">复制所有 HEX</span></button>
             <button onclick="randomColor()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"><span class="lang-en">Random</span><span class="lang-zh" style="display:none">随机</span></button>
         </div>
@@ -103,7 +120,36 @@ function copyAll() {
 }
 
 function hexChanged(v) {
-    if (/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById("baseColor").value = v; updatePalette(); }
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById("baseColor").value = v; var importedColors = [];
+function importColors() {
+    var lines = document.getElementById("importText").value.split("\n").filter(function(l){return l.trim();});
+    var colors = [];
+    lines.forEach(function(line) {
+        line = line.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(line)) { colors.push(line); return; }
+        var m = line.match(/^(\d+),(\d+),(\d+)$/);
+        if (m) { colors.push("#"+[parseInt(m[1]),parseInt(m[2]),parseInt(m[3])].map(function(v){return v.toString(16).padStart(2,"0")}).join("")); }
+    });
+    if (colors.length === 0) { alert("No valid colors found"); return; }
+    importedColors = colors;
+    renderImported();
+    document.getElementById("importedSection").classList.remove("hidden");
+}
+function renderImported() { document.getElementById("importedSection").classList.remove("hidden");
+    var grid = document.getElementById("importedGrid");
+    grid.innerHTML = importedColors.map(function(c, i) {
+        return '<div class="rounded-lg overflow-hidden border border-gray-200 relative group">'
+            + '<div class="h-12" style="background:'+c+'"></div>'
+            + '<div class="p-1.5 text-center text-xs font-mono">'+c+'</div>'
+            + '<button onclick="removeImported('+i+')" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition">\u2715</button>'
+            + '</div>';
+    }).join("");
+    document.getElementById("importCount").textContent = importedColors.length + " colors";
+}
+function removeImported(i) { importedColors.splice(i,1); renderImported(); if(importedColors.length===0) document.getElementById("importedGrid").innerHTML=""; }
+function clearImported() { importedColors=[]; document.getElementById("importedGrid").innerHTML=""; document.getElementById("importCount").textContent=""; }
+
+updatePalette(); }
 }
 
 function randomColor() {
