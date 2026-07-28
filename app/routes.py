@@ -1,4 +1,41 @@
 
+@main.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@main.route('/api/guestbook', methods=['POST'])
+def guestbook():
+    import json, os
+    data = request.json
+    if not data or not data.get('name') or not data.get('message'):
+        return jsonify(success=False, error='Name and message required')
+    import datetime
+    entry = {
+        'name': data['name'][:50],
+        'message': data['message'][:500],
+        'email': data.get('email', '')[:100],
+        'time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+    }
+    filepath = os.path.join(os.path.dirname(__file__), '..', 'messages.json')
+    messages = []
+    if os.path.exists(filepath):
+        try: messages = json.load(open(filepath))
+        except: pass
+    messages.insert(0, entry)
+    if len(messages) > 100: messages = messages[:100]
+    json.dump(messages, open(filepath, 'w'), indent=2)
+    return jsonify(success=True, entry=entry)
+
+@main.route('/api/guestbook', methods=['GET'])
+def get_guestbook():
+    import json, os
+    filepath = os.path.join(os.path.dirname(__file__), '..', 'messages.json')
+    messages = []
+    if os.path.exists(filepath):
+        try: messages = json.load(open(filepath))
+        except: pass
+    return jsonify(messages=messages)
+
 from flask import Blueprint, render_template, request, jsonify
 
 main = Blueprint("main", __name__)

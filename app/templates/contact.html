@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Contact & Guestbook{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Contact</span><span class="lang-zh" style="display:none">联系我</span></h1>
+        <p class="text-gray-500 mb-4"><span class="lang-en">Have suggestions or feedback? Reach out anytime.</span><span class="lang-zh" style="display:none">有任何建议或反馈，欢迎随时联系。</span></p>
+        <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
+            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <a href="mailto:1375483990@qq.com" class="text-blue-600 hover:underline">1375483990@qq.com</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+        <h2 class="text-xl font-bold text-gray-900 mb-2"><span class="lang-en">Guestbook</span><span class="lang-zh" style="display:none">留言板</span></h2>
+        <p class="text-gray-500 text-sm mb-4"><span class="lang-en">Leave a message below.</span><span class="lang-zh" style="display:none">在下方留言。</span></p>
+        
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+            <input id="msgName" type="text" placeholder="Your name" class="w-full mb-2" maxlength="50">
+            <input id="msgEmail" type="email" placeholder="Email (optional)" class="w-full mb-2" maxlength="100">
+            <textarea id="msgText" rows="3" placeholder="Your message..." class="w-full mb-2" maxlength="500"></textarea>
+            <button onclick="submitMessage()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"><span class="lang-en">Submit</span><span class="lang-zh" style="display:none">提交</span></button>
+            <span id="msgStatus" class="ml-2 text-sm text-gray-500"></span>
+        </div>
+
+        <div id="messageList"></div>
+    </div>
+</div>
+
+<script>
+function submitMessage() {
+    var name = document.getElementById("msgName").value.trim();
+    var msg = document.getElementById("msgText").value.trim();
+    var email = document.getElementById("msgEmail").value.trim();
+    if (!name || !msg) { document.getElementById("msgStatus").textContent = "Name and message required"; return; }
+    document.getElementById("msgStatus").textContent = "Sending...";
+    fetch("/api/guestbook", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name: name, message: msg, email: email})
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) {
+            document.getElementById("msgName").value = "";
+            document.getElementById("msgText").value = "";
+            document.getElementById("msgEmail").value = "";
+            document.getElementById("msgStatus").textContent = "Sent!";
+            loadMessages();
+        } else {
+            document.getElementById("msgStatus").textContent = d.error || "Error";
+        }
+    });
+}
+
+function loadMessages() {
+    fetch("/api/guestbook").then(function(r) { return r.json(); }).then(function(d) {
+        var list = document.getElementById("messageList");
+        if (!d.messages || d.messages.length === 0) {
+            list.innerHTML = '<div class="text-sm text-gray-400 text-center py-8">No messages yet. Be the first!</div>';
+            return;
+        }
+        list.innerHTML = d.messages.map(function(m) {
+            return '<div class="border-b border-gray-100 py-3">'
+                + '<div class="flex items-center gap-2 mb-1">'
+                + '<span class="font-medium text-sm text-gray-900">' + m.name + '</span>'
+                + (m.email ? '<span class="text-xs text-gray-400">' + m.email + '</span>' : '')
+                + '<span class="text-xs text-gray-400 ml-auto">' + m.time + '</span>'
+                + '</div>'
+                + '<p class="text-sm text-gray-600">' + m.message + '</p>'
+                + '</div>';
+        }).join("");
+    });
+}
+
+loadMessages();
+</script>
+{% endblock %}
