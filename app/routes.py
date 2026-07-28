@@ -111,9 +111,12 @@ def tool_page(tool_id):
     tool = next((t for t in TOOLS if t["id"] == tool_id), None)
     if not tool:
         return render_template("index.html", tools=TOOLS)
-    return render_template(f"tools/{tool_id}.html", tool=tool)
-
-@main.route("/api/word-counter", methods=["POST"])
+    cat = tool.get("cat", "util")
+    same_cat = [t for t in TOOLS if t.get("cat") == cat and t["id"] != tool_id]
+    import random
+    related = same_cat[:4]
+    random.shuffle(related)
+    return render_template(f"tools/{tool_id}.html", tool=tool, related=related)
 def api_word_counter():
     text = request.json.get("text", "")
     words = len(re.findall(r"\b\w+\b", text))

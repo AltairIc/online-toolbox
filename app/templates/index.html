@@ -19,7 +19,10 @@
         </p>
     </div>
     <div class="flex flex-wrap gap-2 justify-center mb-6">
-        <button onclick="filterTools('all')" class="cat-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium" data-cat="all"><span class="lang-en">All</span><span class="lang-zh" style="display:none">全部</span></button>
+        <button onclick="filterTools('all')" class="cat-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium" data-cat="all"><span class="lang-en">All</span><span class="lang-zh" style="display:none">全部</span>
+        </button>
+        <button onclick="filterTools('popular')" class="cat-btn px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium" data-cat="popular">
+            <span class="lang-en">Trending</span><span class="lang-zh" style="display:none">全部</span></button>
         <button onclick="filterTools('text')" class="cat-btn px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium" data-cat="text"><span class="lang-en">Text</span><span class="lang-zh" style="display:none">文本</span></button>
         <button onclick="filterTools('dev')" class="cat-btn px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium" data-cat="dev"><span class="lang-en">Developer</span><span class="lang-zh" style="display:none">开发</span></button>
         <button onclick="filterTools('image')" class="cat-btn px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium" data-cat="image"><span class="lang-en">Image</span><span class="lang-zh" style="display:none">图片</span></button>
@@ -31,6 +34,13 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 <script>
 var toolCats = {
+    'word-counter': 'text', 'text-case': 'text', 'json-formatter': 'dev', 'base64': 'dev', 'url-encoder': 'dev',
+    'hash-generator': 'dev', 'text-diff': 'text', 'color-converter': 'image', 'uuid-generator': 'gen', 'html-entity': 'text',
+    'markdown-preview': 'util', 'lorem-ipsum': 'text', 'regex-tester': 'dev', 'password-generator': 'gen', 'unit-converter': 'util',
+    'qr-generator': 'gen', 'qr-reader': 'util', 'color-picker': 'image', 'image-filters': 'image', 'image-crop': 'image',
+    'image-compare': 'image', 'image-resize': 'image', 'palette-generator': 'image', 'palette-converter': 'image', 'color-transfer': 'image',
+    'pixel-art': 'image', 'ascii-art': 'image', 'film-presets': 'image', 'csv-json': 'dev', 'border-radius': 'dev'
+};var toolCatMap = {
     'word-counter': 'text', 'text-case': 'text', 'json-formatter': 'dev', 'base64': 'dev', 'url-encoder': 'dev',
     'hash-generator': 'dev', 'text-diff': 'text', 'color-converter': 'image', 'uuid-generator': 'gen', 'html-entity': 'text',
     'markdown-preview': 'util', 'lorem-ipsum': 'text', 'regex-tester': 'dev', 'password-generator': 'gen', 'unit-converter': 'util',
@@ -71,6 +81,7 @@ function searchTools() {
     });
 }
 
+var popularIds = ['pixel-art','ascii-art','film-presets','color-transfer','palette-generator','json-formatter','password-generator','qr-generator'];
 function filterTools(cat) {
     document.querySelectorAll('.cat-btn').forEach(function(b) {
         b.className = b.getAttribute('data-cat') === cat
@@ -79,7 +90,7 @@ function filterTools(cat) {
     });
     document.querySelectorAll('.tool-card').forEach(function(card) {
         var id = card.getAttribute('data-tool-id');
-        card.style.display = (cat === 'all' || toolCats[id] === cat) ? 'block' : 'none';
+        card.style.display = (cat === 'all' || (cat === 'popular' && popularIds.indexOf(id) >= 0) || toolCats[id] === cat) ? 'block' : 'none';
     });
 }
 </script>
