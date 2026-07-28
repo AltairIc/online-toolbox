@@ -1,3 +1,40 @@
+from flask import Blueprint, render_template, request, jsonify
+
+main = Blueprint("main", __name__)
+
+TOOLS = [
+    {"id": "word-counter", "cat": "text", "name": "Word Counter", "desc": "Count words, characters, sentences and paragraphs", "icon": "file-text"},
+    {"id": "text-case", "cat": "text", "name": "Text Case Converter", "desc": "Convert text between uppercase, lowercase, title case and more", "icon": "type"},
+    {"id": "json-formatter", "cat": "dev", "name": "JSON Formatter", "desc": "Format, validate and beautify JSON data", "icon": "braces"},
+    {"id": "base64", "cat": "dev", "name": "Base64 Encoder/Decoder", "desc": "Encode or decode Base64 strings instantly", "icon": "lock"},
+    {"id": "url-encoder", "cat": "dev", "name": "URL Encoder/Decoder", "desc": "Encode or decode URLs for web use", "icon": "link"},
+    {"id": "hash-generator", "cat": "dev", "name": "Hash Generator", "desc": "Generate MD5, SHA1, SHA256, SHA512 hashes", "icon": "fingerprint"},
+    {"id": "text-diff", "cat": "text", "name": "Text Diff Checker", "desc": "Compare two texts and highlight differences", "icon": "git-compare"},
+    {"id": "color-converter", "cat": "image", "name": "Color Converter", "desc": "Convert colors between HEX, RGB and HSL formats", "icon": "palette"},
+    {"id": "uuid-generator", "cat": "gen", "name": "UUID Generator", "desc": "Generate random UUIDs (v4) in bulk", "icon": "shuffle"},
+    {"id": "html-entity", "cat": "text", "name": "HTML Entity Converter", "desc": "Escape or unescape HTML entities", "icon": "code"},
+    {"id": "markdown-preview", "cat": "util", "name": "Markdown Preview", "desc": "Write and preview Markdown in real-time", "icon": "markdown"},
+    {"id": "lorem-ipsum", "cat": "text", "name": "Lorem Ipsum Generator", "desc": "Generate placeholder text for designs and layouts", "icon": "text"},
+    {"id": "regex-tester", "cat": "dev", "name": "Regex Tester", "desc": "Test regular expressions with real-time matching", "icon": "search"},
+    {"id": "password-generator", "cat": "gen", "name": "Password Generator", "desc": "Generate strong random passwords", "icon": "key"},
+    {"id": "unit-converter", "cat": "util", "name": "Unit Converter", "desc": "Convert between length, weight, temperature and more", "icon": "ruler"},
+    {'id': 'qr-generator', 'name': 'QR Code Generator', 'desc': 'Generate QR codes from text, URLs and more', 'icon': 'qr-code'},
+    {'id': 'qr-reader', 'name': 'QR Code Reader', 'desc': 'Decode and read QR codes from images', 'icon': 'camera'},
+    {"id": "color-picker", "cat": "image", "name": "Color Picker from Image", "desc": "Pick colors from images, get RGB/HEX values, and build color palettes for photo editing", "icon": "droplet"},
+    {"id": "image-filters", "cat": "image", "name": "Image Filters", "desc": "Apply filters like grayscale, sepia, blur, brightness and contrast to images", "icon": "image"},
+    {"id": "image-crop", "cat": "image", "name": "Image Crop", "desc": "Crop images with custom or preset aspect ratios", "icon": "crop"},
+    {"id": "image-compare", "cat": "image", "name": "Image Compare", "desc": "Compare two images side by side with a draggable slider", "icon": "git-compare"},
+    {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"},
+    {"id": "palette-generator", "name": "Color Palette Generator", "desc": "Generate complementary, analogous, triadic and more color schemes from any base color", "cat": "image"},
+    {"id": "palette-converter", "name": "Batch Palette Converter", "desc": "Import multiple colors and convert between HEX, RGB and HSL formats in bulk", "cat": "image"},
+    {"id": "color-transfer", "name": "Color Transfer", "desc": "Match the color tone of a reference image onto your photo. Advanced color grading tool.", "cat": "image"},
+    {"id": "csv-json", "name": "CSV to JSON Converter", "desc": "Convert CSV data to JSON and back. Edit, preview and copy results.", "cat": "dev"},
+    {"id": "border-radius", "name": "Border Radius Generator", "desc": "Create and customize CSS border-radius with a visual editor. Live preview.", "cat": "dev"},
+    {"id": "pixel-art", "name": "Pixel Art Generator", "desc": "Turn any photo into 8-bit pixel art. Adjustable pixel size and color palette.", "cat": "image"},
+    {"id": "ascii-art", "name": "ASCII Art Generator", "desc": "Convert any photo into ASCII character art. Copy or download as text.", "cat": "image"},
+    {"id": "film-presets", "name": "Film Look Presets", "desc": "Apply classic film stock looks: Kodak Portra, Fujifilm, Cinestill, VSCO and more. Professional color grading in one click.", "cat": "image"}]
+
+
 
 @main.route('/contact')
 def contact():
@@ -35,43 +72,6 @@ def get_guestbook():
         try: messages = json.load(open(filepath))
         except: pass
     return jsonify(messages=messages)
-
-from flask import Blueprint, render_template, request, jsonify
-
-main = Blueprint("main", __name__)
-
-TOOLS = [
-    {"id": "word-counter", "cat": "text", "name": "Word Counter", "desc": "Count words, characters, sentences and paragraphs", "icon": "file-text"},
-    {"id": "text-case", "cat": "text", "name": "Text Case Converter", "desc": "Convert text between uppercase, lowercase, title case and more", "icon": "type"},
-    {"id": "json-formatter", "cat": "dev", "name": "JSON Formatter", "desc": "Format, validate and beautify JSON data", "icon": "braces"},
-    {"id": "base64", "cat": "dev", "name": "Base64 Encoder/Decoder", "desc": "Encode or decode Base64 strings instantly", "icon": "lock"},
-    {"id": "url-encoder", "cat": "dev", "name": "URL Encoder/Decoder", "desc": "Encode or decode URLs for web use", "icon": "link"},
-    {"id": "hash-generator", "cat": "dev", "name": "Hash Generator", "desc": "Generate MD5, SHA1, SHA256, SHA512 hashes", "icon": "fingerprint"},
-    {"id": "text-diff", "cat": "text", "name": "Text Diff Checker", "desc": "Compare two texts and highlight differences", "icon": "git-compare"},
-    {"id": "color-converter", "cat": "image", "name": "Color Converter", "desc": "Convert colors between HEX, RGB and HSL formats", "icon": "palette"},
-    {"id": "uuid-generator", "cat": "gen", "name": "UUID Generator", "desc": "Generate random UUIDs (v4) in bulk", "icon": "shuffle"},
-    {"id": "html-entity", "cat": "text", "name": "HTML Entity Converter", "desc": "Escape or unescape HTML entities", "icon": "code"},
-    {"id": "markdown-preview", "cat": "util", "name": "Markdown Preview", "desc": "Write and preview Markdown in real-time", "icon": "markdown"},
-    {"id": "lorem-ipsum", "cat": "text", "name": "Lorem Ipsum Generator", "desc": "Generate placeholder text for designs and layouts", "icon": "text"},
-    {"id": "regex-tester", "cat": "dev", "name": "Regex Tester", "desc": "Test regular expressions with real-time matching", "icon": "search"},
-    {"id": "password-generator", "cat": "gen", "name": "Password Generator", "desc": "Generate strong random passwords", "icon": "key"},
-    {"id": "unit-converter", "cat": "util", "name": "Unit Converter", "desc": "Convert between length, weight, temperature and more", "icon": "ruler"},
-    {'id': 'qr-generator', 'name': 'QR Code Generator', 'desc': 'Generate QR codes from text, URLs and more', 'icon': 'qr-code'},
-    {'id': 'qr-reader', 'name': 'QR Code Reader', 'desc': 'Decode and read QR codes from images', 'icon': 'camera'},
-    {"id": "color-picker", "cat": "image", "name": "Color Picker from Image", "desc": "Pick colors from images, get RGB/HEX values, and build color palettes for photo editing", "icon": "droplet"},
-    {"id": "image-filters", "cat": "image", "name": "Image Filters", "desc": "Apply filters like grayscale, sepia, blur, brightness and contrast to images", "icon": "image"},
-    {"id": "image-crop", "cat": "image", "name": "Image Crop", "desc": "Crop images with custom or preset aspect ratios", "icon": "crop"},
-    {"id": "image-compare", "cat": "image", "name": "Image Compare", "desc": "Compare two images side by side with a draggable slider", "icon": "git-compare"},
-    {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"},
-    {"id": "palette-generator", "name": "Color Palette Generator", "desc": "Generate complementary, analogous, triadic and more color schemes from any base color", "cat": "image"},
-    {"id": "palette-converter", "name": "Batch Palette Converter", "desc": "Import multiple colors and convert between HEX, RGB and HSL formats in bulk", "cat": "image"},
-    {"id": "color-transfer", "name": "Color Transfer", "desc": "Match the color tone of a reference image onto your photo. Advanced color grading tool.", "cat": "image"},
-    {"id": "csv-json", "name": "CSV to JSON Converter", "desc": "Convert CSV data to JSON and back. Edit, preview and copy results.", "cat": "dev"},
-    {"id": "border-radius", "name": "Border Radius Generator", "desc": "Create and customize CSS border-radius with a visual editor. Live preview.", "cat": "dev"},
-    {"id": "pixel-art", "name": "Pixel Art Generator", "desc": "Turn any photo into 8-bit pixel art. Adjustable pixel size and color palette.", "cat": "image"},
-    {"id": "ascii-art", "name": "ASCII Art Generator", "desc": "Convert any photo into ASCII character art. Copy or download as text.", "cat": "image"},
-    {"id": "film-presets", "name": "Film Look Presets", "desc": "Apply classic film stock looks: Kodak Portra, Fujifilm, Cinestill, VSCO and more. Professional color grading in one click.", "cat": "image"}]
-
 
 @main.route("/ads.txt")
 def ads_txt():
