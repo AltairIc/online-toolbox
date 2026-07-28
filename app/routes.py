@@ -21,7 +21,11 @@ TOOLS = [
     {"id": "unit-converter", "name": "Unit Converter", "desc": "Convert between length, weight, temperature and more", "icon": "ruler"},
     {'id': 'qr-generator', 'name': 'QR Code Generator', 'desc': 'Generate QR codes from text, URLs and more', 'icon': 'qr-code'},
     {'id': 'qr-reader', 'name': 'QR Code Reader', 'desc': 'Decode and read QR codes from images', 'icon': 'camera'},
-    {"id": "color-picker", "name": "Color Picker from Image", "desc": "Pick colors from images, get RGB/HEX values, and build color palettes for photo editing", "icon": "droplet"}]
+    {"id": "color-picker", "name": "Color Picker from Image", "desc": "Pick colors from images, get RGB/HEX values, and build color palettes for photo editing", "icon": "droplet"},
+    {"id": "image-filters", "name": "Image Filters", "desc": "Apply filters like grayscale, sepia, blur, brightness and contrast to images", "icon": "image"},
+    {"id": "image-crop", "name": "Image Crop", "desc": "Crop images with custom or preset aspect ratios", "icon": "crop"},
+    {"id": "image-compare", "name": "Image Compare", "desc": "Compare two images side by side with a draggable slider", "icon": "git-compare"},
+    {"id": "image-resize", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"}]
 
 @main.route("/")
 def index():

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Image Resize - Resize and Convert Images Online{% endblock %}
+{% block meta_desc %}Resize images and convert between PNG, JPG and WEBP formats. Free online image resizer and converter.{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Image Resize & Convert</span><span class="lang-zh" style="display:none">图片缩放与格式转换</span></h1>
+        <p class="text-gray-500 mb-4"><span class="lang-en">Resize images and convert between PNG, JPG and WEBP formats.</span><span class="lang-zh" style="display:none">调整图片尺寸，在 PNG、JPG 和 WEBP 格式之间转换。</span></p>
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center mb-4" id="dropZone">
+            <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="text-gray-500 text-sm"><span class="lang-en">Click to upload or drag an image</span><span class="lang-zh" style="display:none">点击上传或拖拽图片</span></p>
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+        </div>
+        <div id="editor" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <img id="preview" class="w-full rounded-lg border border-gray-200">
+                    <p class="text-xs text-gray-400 mt-1"><span class="lang-en">Original</span><span class="lang-zh" style="display:none">原图</span>: <span id="origSize"></span></p>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1"><span class="lang-en">Width</span><span class="lang-zh" style="display:none">宽度</span> (px)</label>
+                        <input type="number" id="newWidth" class="w-full" min="1" max="10000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1"><span class="lang-en">Height</span><span class="lang-zh" style="display:none">高度</span> (px)</label>
+                        <input type="number" id="newHeight" class="w-full" min="1" max="10000">
+                    </div>
+                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="keepRatio" checked> <span class="lang-en">Keep aspect ratio</span><span class="lang-zh" style="display:none">保持宽高比</span></label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1"><span class="lang-en">Format</span><span class="lang-zh" style="display:none">格式</span></label>
+                        <select id="format" class="w-full"><option value="image/png">PNG</option><option value="image/jpeg">JPG</option><option value="image/webp">WEBP</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1"><span class="lang-en">Quality</span><span class="lang-zh" style="display:none">质量</span> (JPG/WEBP)</label>
+                        <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.9" class="w-full">
+                    </div>
+                    <button onclick="resizeAndDownload()" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"><span class="lang-en">Resize & Download</span><span class="lang-zh" style="display:none">缩放并下载</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var img=null;
+document.getElementById("dropZone").onclick=function(){document.getElementById("fileInput").click()};
+document.getElementById("fileInput").onchange=function(e){if(e.target.files[0])loadFile(e.target.files[0])};
+function loadFile(file){var r=new FileReader();r.onload=function(e){var i=new Image();i.onload=function(){img=i;document.getElementById("preview").src=e.target.result;document.getElementById("origSize").textContent=i.width+"x"+i.height;document.getElementById("newWidth").value=i.width;document.getElementById("newHeight").value=i.height;document.getElementById("editor").classList.remove("hidden");document.getElementById("dropZone").classList.add("hidden")};i.src=e.target.result};r.readAsDataURL(file)}
+document.getElementById("newWidth").oninput=function(){if(!document.getElementById("keepRatio").checked||!img)return;document.getElementById("newHeight").value=Math.round(this.value/img.width*img.height)};
+document.getElementById("newHeight").oninput=function(){if(!document.getElementById("keepRatio").checked||!img)return;document.getElementById("newWidth").value=Math.round(this.value/img.height*img.width)};
+function resizeAndDownload(){if(!img)return;var w=parseInt(document.getElementById("newWidth").value)||img.width;var h=parseInt(document.getElementById("newHeight").value)||img.height;var fmt=document.getElementById("format").value;var q=parseFloat(document.getElementById("quality").value);var c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);var a=document.createElement("a");var ext={}"""image/png":"png","image/jpeg":"jpg","image/webp":"webp""";a.href=c.toDataURL(fmt,q);a.download="resized."+ext[fmt];a.click()}
+</script>
+{% endblock %}

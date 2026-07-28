@@ -29,6 +29,7 @@
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-semibold text-gray-900">Picked Colors</h3>
                         <button onclick="clearPalette()" class="text-xs text-red-500 hover:underline">Clear All</button>
+                        <button onclick="autoExtract()" class="text-xs px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200"><span class="lang-en">Auto Extract</span><span class="lang-zh" style="display:none">自动提取</span></button>
                     </div>
                     <div id="colorList" class="space-y-2 max-h-96 overflow-y-auto">
                         <div class="text-sm text-gray-400 text-center py-8">Click on the image to start picking colors</div>
@@ -127,5 +128,38 @@ function exportPalette() {
     document.body.removeChild(ta);
     alert("Palette copied to clipboard!");
 }
+
+function autoExtract() {
+    var w = canvas.width, h = canvas.height;
+    var id = ctx.getImageData(0, 0, w, h);
+    var d = id.data;
+    // Sample pixels
+    var samples = [];
+    for (var y = 0; y < h; y += 4) {
+        for (var x = 0; x < w; x += 4) {
+            var i = (y * w + x) * 4;
+            samples.push({r: d[i], g: d[i+1], b: d[i+2]});
+        }
+    }
+    // Cluster colors using simple median cut: quantize to 5-bit per channel
+    var buckets = {};
+    samples.forEach(function(s) {
+        var key = Math.round(s.r/32)*32 + ',' + Math.round(s.g/32)*32 + ',' + Math.round(s.b/32)*32;
+        if (!buckets[key]) buckets[key] = {r: 0, g: 0, b: 0, count: 0};
+        buckets[key].r += s.r; buckets[key].g += s.g; buckets[key].b += s.b;
+        buckets[key].count++;
+    });
+    // Get top 8 most frequent buckets
+    var top = Object.keys(buckets).sort(function(a, b) { return buckets[b].count - buckets[a].count; }).slice(0, 8);
+    var colors = top.map(function(k) {
+        var b = buckets[k];
+        var r = Math.round(b.r / b.count), g = Math.round(b.g / b.count), bl = Math.round(b.b / b.count);
+        var hex = '#' + [r, g, bl].map(function(v) { return v.toString(16).padStart(2, '0'); }).join('');
+        return {r: r, g: g, b: bl, hex: hex, rgb: 'rgb(' + r + ',' + g + ',' + bl + ')'};
+    });
+    colors.forEach(function(c2) { palette.push(c2); });
+    renderPalette();
+}
+
 </script>
 {% endblock %}

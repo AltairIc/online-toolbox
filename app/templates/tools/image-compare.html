@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Image Compare - Before After Image Comparison Online{% endblock %}
+{% block meta_desc %}Compare two images side by side with a draggable slider. Free online before and after image comparison tool.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Image Compare</span><span class="lang-zh" style="display:none">图片对比</span></h1>
+        <p class="text-gray-500 mb-4"><span class="lang-en">Upload two images and compare them side by side with a draggable slider. Perfect for before/after comparisons.</span><span class="lang-zh" style="display:none">上传两张图片，通过拖拽滑块进行并排对比。适合修图前后对比。</span></p>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-500" id="dz1" onclick="document.getElementById('f1').click()">
+                <p class="text-sm text-gray-500"><span class="lang-en">Before Image</span><span class="lang-zh" style="display:none">原图</span></p>
+                <input type="file" id="f1" accept="image/*" class="hidden" onchange="loadImage(0,this)">
+            </div>
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-500" id="dz2" onclick="document.getElementById('f2').click()">
+                <p class="text-sm text-gray-500"><span class="lang-en">After Image</span><span class="lang-zh" style="display:none">修改后</span></p>
+                <input type="file" id="f2" accept="image/*" class="hidden" onchange="loadImage(1,this)">
+            </div>
+        </div>
+        <div id="compareView" class="hidden relative bg-gray-100 rounded-lg overflow-hidden select-none" style="height:400px">
+            <canvas id="canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+            <div id="slider" class="absolute top-0 bottom-0 w-1 bg-white cursor-col-resize z-10" style="left:50%"><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow flex items-center justify-center text-sm font-bold text-gray-600">&#8596;</div></div>
+        </div>
+    </div>
+</div>
+<script>
+var images=[null,null],loaded=[false,false];
+function loadImage(idx,input){if(!input.files[0])return;var r=new FileReader();r.onload=function(e){loaded[idx]=true;var i=new Image();i.onload=function(){images[idx]=i;document.getElementById('dz'+(idx+1)).innerHTML='<img src="'+e.target.result+'" class="max-h-32 mx-auto rounded">';if(loaded[0]&&loaded[1])initCompare()};i.src=e.target.result};r.readAsDataURL(input.files[0])}
+function initCompare(){var img=images[0];var c=document.getElementById("canvas");c.width=600;c.height=400;var ctx=c.getContext("2d");ctx.drawImage(img,0,0,600,400);ctx.save();document.getElementById("compareView").classList.remove("hidden");drawSplit(50)}
+function drawSplit(pos){var c=document.getElementById("canvas"),ctx=c.getContext("2d"),img2=images[1];ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(images[0],0,0,c.width,c.height);ctx.save();ctx.beginPath();ctx.rect(pos*c.width/100-1,0,c.width-pos*c.width/100+2,c.height);ctx.clip();ctx.drawImage(img2,0,0,c.width,c.height);ctx.restore();ctx.strokeStyle="white";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pos*c.width/100,0);ctx.lineTo(pos*c.width/100,c.height);ctx.stroke()}
+var slider=document.getElementById("slider");var isDragging=false;
+slider.onmousedown=function(e){isDragging=true;e.preventDefault()};
+document.onmousemove=function(e){if(!isDragging)return;var r=document.getElementById("compareView").getBoundingClientRect();var p=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));slider.style.left=p+"%";drawSplit(p)};
+document.onmouseup=function(){isDragging=false};
+</script>
+{% endblock %}

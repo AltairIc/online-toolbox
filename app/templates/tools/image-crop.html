@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Image Crop - Crop Images Online Free{% endblock %}
+{% block meta_desc %}Crop images with custom or preset aspect ratios. Free online image cropper.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Image Crop</span><span class="lang-zh" style="display:none">图片裁剪</span></h1>
+        <p class="text-gray-500 mb-4"><span class="lang-en">Crop images with custom or preset aspect ratios. Drag the handles to select the area.</span><span class="lang-zh" style="display:none">按自定义或预设比例裁剪图片，拖拽选框选择区域。</span></p>
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center mb-4" id="dropZone">
+            <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="text-gray-500 text-sm"><span class="lang-en">Click to upload or drag an image</span><span class="lang-zh" style="display:none">点击上传或拖拽图片</span></p>
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+        </div>
+        <div id="editor" class="hidden">
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="setRatio('free')" class="ratio-btn px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700"><span class="lang-en">Free</span><span class="lang-zh" style="display:none">自由</span></button>
+                <button onclick="setRatio('1:1')" class="ratio-btn px-3 py-1.5 bg-gray-100 rounded-lg text-xs hover:bg-blue-100">1:1</button>
+                <button onclick="setRatio('4:3')" class="ratio-btn px-3 py-1.5 bg-gray-100 rounded-lg text-xs hover:bg-blue-100">4:3</button>
+                <button onclick="setRatio('3:2')" class="ratio-btn px-3 py-1.5 bg-gray-100 rounded-lg text-xs hover:bg-blue-100">3:2</button>
+                <button onclick="setRatio('16:9')" class="ratio-btn px-3 py-1.5 bg-gray-100 rounded-lg text-xs hover:bg-blue-100">16:9</button>
+            </div>
+            <div class="relative bg-gray-100 rounded-lg overflow-hidden mb-4">
+                <canvas id="canvas" class="w-full"></canvas>
+                <div id="cropOverlay" class="absolute border-2 border-blue-500 cursor-move" style="display:none"></div>
+            </div>
+            <button onclick="cropImage()" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"><span class="lang-en">Crop & Download</span><span class="lang-zh" style="display:none">裁剪并下载</span></button>
+        </div>
+    </div>
+</div>
+<script>
+var canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+var img=null,ratio="free",crop={x:0,y:0,w:0,h:0},isDragging=false;
+document.getElementById("dropZone").onclick=function(){document.getElementById("fileInput").click()};
+document.getElementById("fileInput").onchange=function(e){if(e.target.files[0])loadFile(e.target.files[0])};
+function loadFile(file){var r=new FileReader();r.onload=function(e){var i=new Image();i.onload=function(){canvas.width=Math.min(i.width,700);canvas.height=Math.min(i.height,500);ctx.drawImage(i,0,0,canvas.width,canvas.height);img=i;crop={x:20,y:20,w:canvas.width-40,h:canvas.height-40};drawCrop();document.getElementById("editor").classList.remove("hidden");document.getElementById("dropZone").classList.add("hidden")};i.src=e.target.result};r.readAsDataURL(file)}
+function drawCrop(){ctx.drawImage(img,0,0,canvas.width,canvas.height);ctx.strokeStyle="#3b82f6";ctx.lineWidth=2;ctx.setLineDash([]);ctx.strokeRect(crop.x,crop.y,crop.w,crop.h);ctx.fillStyle="rgba(59,130,246,0.1)";ctx.fillRect(crop.x,crop.y,crop.w,crop.h)}
+function setRatio(r){ratio=r;document.querySelectorAll(".ratio-btn").forEach(function(b){b.className=b.className.replace("bg-blue-600 text-white","bg-gray-100")});event.target.className="ratio-btn px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700"}
+canvas.onmousedown=function(e){var r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*(canvas.width/r.width),y=(e.clientY-r.top)*(canvas.height/r.height);if(x>crop.x&&x<crop.x+crop.w&&y>crop.y&&y<crop.y+crop.h){isDragging=true;canvas.style.cursor="grabbing"}else{isDragging=false;crop.x=x-50;crop.y=y-50;crop.w=100;crop.h=100;drawCrop()}};
+canvas.onmousemove=function(e){var r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*(canvas.width/r.width),y=(e.clientY-r.top)*(canvas.height/r.height);if(isDragging){var dx=x-crop.x-crop.w/2,dy=y-crop.y-crop.h/2;crop.x+=dx;crop.y+=dy;drawCrop()}};
+canvas.onmouseup=function(){isDragging=false;canvas.style.cursor=""};
+function cropImage(){if(!img)return;var tmp=document.createElement("canvas");var s=canvas.width/img.width;tmp.width=crop.w/s;tmp.height=crop.h/s;tmp.getContext("2d").drawImage(img,crop.x/s,crop.y/s,crop.w/s,crop.h/s,0,0,tmp.width,tmp.height);var a=document.createElement("a");a.href=tmp.toDataURL("image/png");a.download="cropped.png";a.click()}
+</script>
+{% endblock %}
