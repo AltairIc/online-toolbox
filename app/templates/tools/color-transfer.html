@@ -100,7 +100,7 @@ function labToRgb(l,a,b2) {
 
 function applyTransfer() {
     if (!refImg || !targetImg) return;
-    var canvas=document.getElementById("resultCanvas"), w=Math.min(targetImg.width,maxW), h=Math.min(targetImg.height,maxH);
+    var canvas=document.getElementById("resultCanvas"); var w=Math.min(targetImg.width,maxW); var h=Math.round(w*targetImg.height/targetImg.width); if(h>maxH){h=maxH; w=Math.round(h*targetImg.width/targetImg.height);}
     canvas.width=w; canvas.height=h;
     var ctx=canvas.getContext("2d");
     ctx.drawImage(targetImg,0,0,w,h);
