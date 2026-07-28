@@ -38,6 +38,11 @@ TOOLS = [
 
 
 
+
+@main.app_errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
+
 @main.route('/sitemap.xml')
 def sitemap():
     from flask import Response
@@ -104,6 +109,15 @@ def ads_txt():
     return "google.com, pub-4613836349381729, DIRECT, f08c47fec0942fa0\n", 200, {"Content-Type": "text/plain"}
 @main.route("/")
 def index():
+    import json, os
+    counter_file = os.path.join(os.path.dirname(__file__), '..', 'counter.json')
+    count = 0
+    try:
+        if os.path.exists(counter_file):
+            data = json.load(open(counter_file))
+            count = data.get("visits", 0) + 1
+        json.dump({"visits": count}, open(counter_file, 'w'))
+    except: pass
     return render_template("index.html", tools=TOOLS)
 
 @main.route("/tool/<tool_id>")
