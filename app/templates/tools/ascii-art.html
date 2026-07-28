@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}ASCII Art Generator - Convert Photos to ASCII Art Online{% endblock %}
+{% block meta_desc %}Turn any photo into ASCII character art. Free online ASCII art generator with adjustable density.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">ASCII Art Generator</span><span class="lang-zh" style="display:none">ASCII 字符画生成器</span></h1>
+        <p class="text-gray-500 mb-6"><span class="lang-en">Convert any photo into character-based ASCII art. Copy or download.</span><span class="lang-zh" style="display:none">把任意照片转换成字符组成的 ASCII 艺术画。可复制或下载。</span></p>
+        <label class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 block mb-4">
+            <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="text-sm text-gray-500"><span class="lang-en">Click to upload an image</span><span class="lang-zh" style="display:none">点击上传图片</span></p>
+            <input type="file" accept="image/*" onchange="loadImage(this)" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mt-2">
+        </label>
+        <div id="editor" class="hidden">
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <div><label class="text-xs text-gray-500"><span class="lang-en">Density</span><span class="lang-zh" style="display:none">密度</span>: <span id="densVal">medium</span></label>
+                    <select id="density" onchange="generate()" class="ml-2 text-sm border rounded px-2 py-1">
+                        <option value="low"><span class="lang-en">Low</span><span class="lang-zh" style="display:none">低</span></option>
+                        <option value="medium" selected><span class="lang-en">Medium</span><span class="lang-zh" style="display:none">中</span></option>
+                        <option value="high"><span class="lang-en">High</span><span class="lang-zh" style="display:none">高</span></option>
+                    </select>
+                </div>
+                <div><label class="text-xs text-gray-500"><span class="lang-en">Invert</span><span class="lang-zh" style="display:none">反色</span></label>
+                    <input type="checkbox" id="invert" onchange="generate()" class="ml-1">
+                </div>
+                <button onclick="copyAscii()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"><span class="lang-en">Copy Text</span><span class="lang-zh" style="display:none">复制文本</span></button>
+                <button onclick="downloadAscii()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"><span class="lang-en">Download .txt</span><span class="lang-zh" style="display:none">下载文本</span></button>
+            </div>
+            <div class="bg-gray-900 rounded-xl p-4 overflow-auto" style="max-height:500px">
+                <pre id="asciiOutput" class="font-mono text-green-400 text-xs leading-tight" style="font-size:8px;line-height:6px;letter-spacing:0"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+<canvas id="hiddenCanvas" class="hidden"></canvas>
+<script>
+var img = null;
+var chars = ["@","%","#","*","+","=","-",":","."," "];
+
+function loadImage(input) {
+    if (!input.files || !input.files[0]) return;
+    var r = new FileReader();
+    r.onload = function(e) {
+        var i = new Image();
+        i.onload = function() {
+            img = i;
+            document.getElementById("editor").classList.remove("hidden");
+            generate();
+        };
+        i.src = e.target.result;
+    };
+    r.readAsDataURL(input.files[0]);
+}
+
+function generate() {
+    if (!img) return;
+    var canvas = document.getElementById("hiddenCanvas");
+    var density = document.getElementById("density").value;
+    var invert = document.getElementById("invert").checked;
+    
+    var cols, rows;
+    if (density === "low") { cols = 60; rows = Math.round(cols * img.height / img.width * 0.45); }
+    else if (density === "medium") { cols = 100; rows = Math.round(cols * img.height / img.width * 0.45); }
+    else { cols = 160; rows = Math.round(cols * img.height / img.width * 0.45); }
+    
+    canvas.width = cols;
+    canvas.height = rows;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, cols, rows);
+    var data = ctx.getImageData(0, 0, cols, rows).data;
+    
+    var result = "";
+    for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+            var i2 = (y * cols + x) * 4;
+            var brightness = (data[i2] + data[i2+1] + data[i2+2]) / 3;
+            if (invert) brightness = 255 - brightness;
+            var idx = Math.floor(brightness / 255 * (chars.length - 1));
+            result += chars[idx];
+        }
+        result += "\n";
+    }
+    
+    document.getElementById("asciiOutput").textContent = result;
+}
+
+function copyAscii() {
+    var text = document.getElementById("asciiOutput").textContent;
+    navigator.clipboard.writeText(text);
+}
+
+function downloadAscii() {
+    var text = document.getElementById("asciiOutput").textContent;
+    var blob = new Blob([text], {type: "text/plain"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ascii_art.txt";
+    a.click();
+}
+</script>
+{% endblock %}
