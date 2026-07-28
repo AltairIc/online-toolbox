@@ -136,7 +136,8 @@ function translatePage(lang) {
     // Use querySelectorAll on specific element types for reliable translation
     var targets = document.querySelectorAll('h1, h2, h3, label, button, option, th, td, p, span, div');
     targets.forEach(function(el) {
-        if (el.querySelector('*')) return; // skip elements with children to avoid nested translation
+        if (el.querySelector('*')) return;
+        if (el.classList.contains('lang-en') || el.classList.contains('lang-zh')) return; // skip elements with children to avoid nested translation
         var t = el.textContent.trim();
         if (!t || t.length > 100) return;
         var d = (lang === 'zh') ? dict : {};
