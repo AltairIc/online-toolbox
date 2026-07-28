@@ -120,36 +120,7 @@ function copyAll() {
 }
 
 function hexChanged(v) {
-    if (/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById("baseColor").value = v; var importedColors = [];
-function importColors() {
-    var lines = document.getElementById("importText").value.split("\n").filter(function(l){return l.trim();});
-    var colors = [];
-    lines.forEach(function(line) {
-        line = line.trim();
-        if (/^#[0-9a-fA-F]{6}$/.test(line)) { colors.push(line); return; }
-        var m = line.match(/^(\d+),(\d+),(\d+)$/);
-        if (m) { colors.push("#"+[parseInt(m[1]),parseInt(m[2]),parseInt(m[3])].map(function(v){return v.toString(16).padStart(2,"0")}).join("")); }
-    });
-    if (colors.length === 0) { alert("No valid colors found"); return; }
-    importedColors = colors;
-    renderImported();
-    document.getElementById("importedSection").classList.remove("hidden");
-}
-function renderImported() { document.getElementById("importedSection").classList.remove("hidden");
-    var grid = document.getElementById("importedGrid");
-    grid.innerHTML = importedColors.map(function(c, i) {
-        return '<div class="rounded-lg overflow-hidden border border-gray-200 relative group">'
-            + '<div class="h-12" style="background:'+c+'"></div>'
-            + '<div class="p-1.5 text-center text-xs font-mono">'+c+'</div>'
-            + '<button onclick="removeImported('+i+')" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition">\u2715</button>'
-            + '</div>';
-    }).join("");
-    document.getElementById("importCount").textContent = importedColors.length + " colors";
-}
-function removeImported(i) { importedColors.splice(i,1); renderImported(); if(importedColors.length===0) document.getElementById("importedGrid").innerHTML=""; }
-function clearImported() { importedColors=[]; document.getElementById("importedGrid").innerHTML=""; document.getElementById("importCount").textContent=""; }
-
-updatePalette(); }
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById("baseColor").value = v; updatePalette(); }
 }
 
 function randomColor() {
@@ -158,6 +129,36 @@ function randomColor() {
     document.getElementById("hexInput").value = hex;
     updatePalette();
 }
+
+var importedColors = [];
+function importColors() {
+    var lines = document.getElementById('importText').value.split('\n').filter(function(l){return l.trim();});
+    var colors = [];
+    lines.forEach(function(line) {
+        line = line.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(line)) { colors.push(line); return; }
+        var m = line.match(/^(\d+),(\d+),(\d+)$/);
+        if (m) { colors.push('#'+[parseInt(m[1]),parseInt(m[2]),parseInt(m[3])].map(function(v){return v.toString(16).padStart(2,'0')}).join('')); }
+    });
+    if (colors.length === 0) { alert('No valid colors found'); return; }
+    importedColors = colors;
+    renderImported();
+    document.getElementById('importedSection').classList.remove('hidden');
+}
+function renderImported() {
+    document.getElementById('importedSection').classList.remove('hidden');
+    var grid = document.getElementById('importedGrid');
+    grid.innerHTML = importedColors.map(function(c, i) {
+        return '<div class="rounded-lg overflow-hidden border border-gray-200 relative group">'
+            + '<div class="h-12" style="background:'+c+'"></div>'
+            + '<div class="p-1.5 text-center text-xs font-mono">'+c+'</div>'
+            + '<button onclick="removeImported('+i+')" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition">\u2715</button>'
+            + '</div>';
+    }).join('');
+    document.getElementById('importCount').textContent = importedColors.length + ' colors';
+}
+function removeImported(i) { importedColors.splice(i,1); renderImported(); if(importedColors.length===0) document.getElementById('importedGrid').innerHTML=''; }
+function clearImported() { importedColors=[]; document.getElementById('importedGrid').innerHTML=''; document.getElementById('importCount').textContent=''; }
 
 updatePalette();
 </script>
