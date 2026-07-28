@@ -5,19 +5,21 @@
 <div class="max-w-5xl mx-auto">
     <div class="bg-white rounded-xl border border-gray-200 p-6">
         <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Color Transfer</span><span class="lang-zh" style="display:none">色彩迁移</span></h1>
-        <p class="text-gray-500 mb-6"><span class="lang-en">Match the color tone and mood of a reference image onto your photo in one click.</span><span class="lang-zh" style="display:none">一键将参考图的色调和氛围应用到你的照片上。</span></p>
+        <p class="text-gray-500 mb-6"><span class="lang-en">Match the color tone of a reference image onto your photo.</span><span class="lang-zh" style="display:none">将参考图的色调应用到你的照片上。</span></p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 cursor-pointer" id="refZone">
-                <p class="text-sm font-medium text-gray-600"><span class="lang-en">Reference Image</span><span class="lang-zh" style="display:none">参考图</span></p>
-                <p class="text-xs text-gray-400 mt-1" id="refHint"><span class="lang-en">Click here</span><span class="lang-zh" style="display:none">点击这里</span></p>
-                <img id="refPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
-            </div>
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 cursor-pointer" id="targetZone">
-                <p class="text-sm font-medium text-gray-600"><span class="lang-en">Your Photo</span><span class="lang-zh" style="display:none">你的照片</span></p>
-                <p class="text-xs text-gray-400 mt-1" id="targetHint"><span class="lang-en">Click here</span><span class="lang-zh" style="display:none">点击这里</span></p>
-                <img id="targetPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
-            </div>
+            <label class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 block">
+                <span class="text-sm font-medium text-gray-600"><span class="lang-en">Reference Image</span><span class="lang-zh" style="display:none">参考图</span></span>
+                <span class="text-xs text-gray-400 block mt-1"><span class="lang-en">Click to choose file</span><span class="lang-zh" style="display:none">点击选择图片</span></span>
+                <img id="refPreview" class="hidden max-h-32 mx-auto mt-2 rounded"><br>
+                <input type="file" accept="image/*" onchange="loadRef(this)" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </label>
+            <label class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 block">
+                <span class="text-sm font-medium text-gray-600"><span class="lang-en">Your Photo</span><span class="lang-zh" style="display:none">你的照片</span></span>
+                <span class="text-xs text-gray-400 block mt-1"><span class="lang-en">Click to choose file</span><span class="lang-zh" style="display:none">点击选择图片</span></span>
+                <img id="targetPreview" class="hidden max-h-32 mx-auto mt-2 rounded"><br>
+                <input type="file" accept="image/*" onchange="loadTarget(this)" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </label>
         </div>
 
         <div class="text-center mb-6" id="actionArea" style="display:none">
@@ -26,9 +28,7 @@
 
         <div id="resultArea" class="hidden">
             <h3 class="text-sm font-semibold text-gray-700 mb-2"><span class="lang-en">Result</span><span class="lang-zh" style="display:none">结果</span></h3>
-            <div class="bg-gray-100 rounded-lg overflow-hidden mb-4">
-                <canvas id="resultCanvas" class="w-full"></canvas>
-            </div>
+            <div class="bg-gray-100 rounded-lg overflow-hidden mb-4"><canvas id="resultCanvas" class="w-full"></canvas></div>
             <div class="flex gap-2">
                 <button onclick="downloadResult()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"><span class="lang-en">Download</span><span class="lang-zh" style="display:none">下载</span></button>
                 <button onclick="resetAll()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"><span class="lang-en">Start Over</span><span class="lang-zh" style="display:none">重新开始</span></button>
@@ -36,180 +36,113 @@
         </div>
     </div>
 </div>
-
 <script>
 var refImg = null, targetImg = null, resultDataUrl = null;
 var maxW = 800, maxH = 600;
 
-function setupUpload(zoneId, imgId, hintId, callback) {
-    var input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.style.display = "none";
-    document.body.appendChild(input);
-    
-    var zone = document.getElementById(zoneId);
-    zone.addEventListener("click", function() {
-        input.click();
-    });
-    
-    zone.addEventListener("dragover", function(e) {
-        e.preventDefault();
-        this.style.borderColor = "#3b82f6";
-    });
-    zone.addEventListener("dragleave", function() {
-        this.style.borderColor = "";
-    });
-    zone.addEventListener("drop", function(e) {
-        e.preventDefault();
-        this.style.borderColor = "";
-        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-    });
-    
-    input.addEventListener("change", function(e) {
-        if (e.target.files.length) handleFile(e.target.files[0]);
-    });
-    
-    function handleFile(file) {
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-            var img = new Image();
-            img.onload = function() {
-                callback(img);
-                document.getElementById(imgId).src = ev.target.result;
-                document.getElementById(imgId).classList.remove("hidden");
-                document.getElementById(hintId).textContent = file.name;
-            };
-            img.src = ev.target.result;
+function loadRef(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    var r = new FileReader();
+    r.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+            refImg = img;
+            document.getElementById("refPreview").src = e.target.result;
+            document.getElementById("refPreview").classList.remove("hidden");
+            checkReady();
         };
-        reader.readAsDataURL(file);
-    }
+        img.src = e.target.result;
+    };
+    r.readAsDataURL(file);
 }
 
-setupUpload("refZone", "refPreview", "refHint", function(img) {
-    refImg = img;
-    checkReady();
-});
-
-setupUpload("targetZone", "targetPreview", "targetHint", function(img) {
-    targetImg = img;
-    checkReady();
-});
+function loadTarget(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    var r = new FileReader();
+    r.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+            targetImg = img;
+            document.getElementById("targetPreview").src = e.target.result;
+            document.getElementById("targetPreview").classList.remove("hidden");
+            checkReady();
+        };
+        img.src = e.target.result;
+    };
+    r.readAsDataURL(file);
+}
 
 function checkReady() {
-    if (refImg && targetImg) {
-        document.getElementById("actionArea").style.display = "block";
-    }
+    if (refImg && targetImg) document.getElementById("actionArea").style.display = "block";
 }
 
 function srgbToLinear(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
-function linearToSrgb(c) { c = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1/2.4) - 0.055; return Math.round(Math.max(0, Math.min(255, c * 255))); }
+function linearToSrgb(c) { return Math.round(Math.max(0, Math.min(255, (c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1/2.4) - 0.055) * 255))); }
 
 function rgbToLab(r,g,b) {
-    var R = srgbToLinear(r), G = srgbToLinear(g), B = srgbToLinear(b);
-    var X = 0.412453*R + 0.357580*G + 0.180423*B;
-    var Y = 0.212671*R + 0.715160*G + 0.072169*B;
-    var Z = 0.019334*R + 0.119193*G + 0.950227*B;
-    X /= 0.950456; Y /= 1.0; Z /= 1.088754;
-    function f(t) { return t > 0.008856 ? Math.pow(t, 1/3) : 7.787*t + 16/116; }
-    return [116 * f(Y) - 16, 500 * (f(X) - f(Y)), 200 * (f(Y) - f(Z))];
+    var R=srgbToLinear(r),G=srgbToLinear(g),B=srgbToLinear(b);
+    var X=0.412453*R+0.357580*G+0.180423*B, Y=0.212671*R+0.715160*G+0.072169*B, Z=0.019334*R+0.119193*G+0.950227*B;
+    X/=0.950456; Y/=1.0; Z/=1.088754;
+    var f=function(t){return t>0.008856?Math.pow(t,1/3):7.787*t+16/116};
+    return [116*f(Y)-16, 500*(f(X)-f(Y)), 200*(f(Y)-f(Z))];
 }
 
 function labToRgb(l,a,b2) {
-    var fy = (l + 16) / 116, fx = a / 500 + fy, fz = fy - b2 / 200;
-    var X = 0.950456 * (fx > 0.206893 ? Math.pow(fx, 3) : (fx - 16/116) / 7.787);
-    var Y = 1.0 * (fy > 0.206893 ? Math.pow(fy, 3) : (fy - 16/116) / 7.787);
-    var Z = 1.088754 * (fz > 0.206893 ? Math.pow(fz, 3) : (fz - 16/116) / 7.787);
-    var R = 3.240479*X - 1.537150*Y - 0.498535*Z;
-    var G = -0.969256*X + 1.875992*Y + 0.041556*Z;
-    var B = 0.055648*X - 0.204043*Y + 1.057311*Z;
-    return [linearToSrgb(R), linearToSrgb(G), linearToSrgb(B)];
+    var fy=(l+16)/116, fx=a/500+fy, fz=fy-b2/200;
+    var X=0.950456*(fx>0.206893?Math.pow(fx,3):(fx-16/116)/7.787);
+    var Y=1.0*(fy>0.206893?Math.pow(fy,3):(fy-16/116)/7.787);
+    var Z=1.088754*(fz>0.206893?Math.pow(fz,3):(fz-16/116)/7.787);
+    var R=3.240479*X-1.537150*Y-0.498535*Z, G=-0.969256*X+1.875992*Y+0.041556*Z, B=0.055648*X-0.204043*Y+1.057311*Z;
+    return [linearToSrgb(R),linearToSrgb(G),linearToSrgb(B)];
 }
 
 function applyTransfer() {
     if (!refImg || !targetImg) return;
-    var canvas = document.getElementById("resultCanvas");
-    var w = Math.min(targetImg.width, maxW), h = Math.min(targetImg.height, maxH);
-    canvas.width = w; canvas.height = h;
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(targetImg, 0, 0, w, h);
-    var targetData = ctx.getImageData(0, 0, w, h);
-    
-    var refC = document.createElement("canvas");
-    refC.width = w; refC.height = h;
-    var refCtx = refC.getContext("2d");
-    refCtx.drawImage(refImg, 0, 0, w, h);
-    var refData = refCtx.getImageData(0, 0, w, h);
-    
-    var refPixels = [];
-    for (var i = 0; i < refData.data.length; i += 4) {
-        refPixels.push(rgbToLab(refData.data[i], refData.data[i+1], refData.data[i+2]));
+    var canvas=document.getElementById("resultCanvas"), w=Math.min(targetImg.width,maxW), h=Math.min(targetImg.height,maxH);
+    canvas.width=w; canvas.height=h;
+    var ctx=canvas.getContext("2d");
+    ctx.drawImage(targetImg,0,0,w,h);
+    var targetData=ctx.getImageData(0,0,w,h);
+    var refC=document.createElement("canvas"); refC.width=w; refC.height=h;
+    refC.getContext("2d").drawImage(refImg,0,0,w,h);
+    var refData=refC.getContext("2d").getImageData(0,0,w,h);
+    var n=w*h;
+    function calcStats(data) {
+        var sum=[0,0,0], sumsq=[0,0,0];
+        for(var i=0;i<data.data.length;i+=4) {
+            var lab=rgbToLab(data.data[i],data.data[i+1],data.data[i+2]);
+            sum[0]+=lab[0];sum[1]+=lab[1];sum[2]+=lab[2];
+            sumsq[0]+=lab[0]*lab[0];sumsq[1]+=lab[1]*lab[1];sumsq[2]+=lab[2]*lab[2];
+        }
+        var mean=[sum[0]/n,sum[1]/n,sum[2]/n];
+        var std=[Math.sqrt(sumsq[0]/n-mean[0]*mean[0]),Math.sqrt(sumsq[1]/n-mean[1]*mean[1]),Math.sqrt(sumsq[2]/n-mean[2]*mean[2])];
+        for(var i=0;i<3;i++) if(std[i]<0.001) std[i]=1;
+        return {mean:mean,std:std};
     }
-    var n = refPixels.length;
-    var refMean = [0,0,0];
-    refPixels.forEach(function(p) { refMean[0] += p[0]; refMean[1] += p[1]; refMean[2] += p[2]; });
-    refMean[0] /= n; refMean[1] /= n; refMean[2] /= n;
-    
-    var refStd = [0,0,0];
-    refPixels.forEach(function(p) {
-        refStd[0] += Math.pow(p[0] - refMean[0], 2);
-        refStd[1] += Math.pow(p[1] - refMean[1], 2);
-        refStd[2] += Math.pow(p[2] - refMean[2], 2);
-    });
-    refStd[0] = Math.sqrt(refStd[0] / n);
-    refStd[1] = Math.sqrt(refStd[1] / n);
-    refStd[2] = Math.sqrt(refStd[2] / n);
-    if (refStd[0] < 0.001) refStd[0] = 1;
-    if (refStd[1] < 0.001) refStd[1] = 1;
-    if (refStd[2] < 0.001) refStd[2] = 1;
-    
-    var tPixels = [];
-    for (var i = 0; i < targetData.data.length; i += 4) {
-        tPixels.push(rgbToLab(targetData.data[i], targetData.data[i+1], targetData.data[i+2]));
+    var ref=calcStats(refData), tar=calcStats(targetData);
+    var d=targetData.data;
+    for(var i=0;i<d.length;i+=4) {
+        var lab=rgbToLab(d[i],d[i+1],d[i+2]);
+        lab[0]=(lab[0]-tar.mean[0])/tar.std[0]*ref.std[0]+ref.mean[0];
+        lab[1]=(lab[1]-tar.mean[1])/tar.std[1]*ref.std[1]+ref.mean[1];
+        lab[2]=(lab[2]-tar.mean[2])/tar.std[2]*ref.std[2]+ref.mean[2];
+        var rgb=labToRgb(lab[0],lab[1],lab[2]);
+        d[i]=rgb[0];d[i+1]=rgb[1];d[i+2]=rgb[2];
     }
-    var tMean = [0,0,0];
-    tPixels.forEach(function(p) { tMean[0] += p[0]; tMean[1] += p[1]; tMean[2] += p[2]; });
-    tMean[0] /= n; tMean[1] /= n; tMean[2] /= n;
-    
-    var tStd = [0,0,0];
-    tPixels.forEach(function(p) {
-        tStd[0] += Math.pow(p[0] - tMean[0], 2);
-        tStd[1] += Math.pow(p[1] - tMean[1], 2);
-        tStd[2] += Math.pow(p[2] - tMean[2], 2);
-    });
-    tStd[0] = Math.sqrt(tStd[0] / n);
-    tStd[1] = Math.sqrt(tStd[1] / n);
-    tStd[2] = Math.sqrt(tStd[2] / n);
-    if (tStd[0] < 0.001) tStd[0] = 1;
-    if (tStd[1] < 0.001) tStd[1] = 1;
-    if (tStd[2] < 0.001) tStd[2] = 1;
-    
-    var d = targetData.data;
-    for (var i = 0; i < d.length; i += 4) {
-        var lab = rgbToLab(d[i], d[i+1], d[i+2]);
-        lab[0] = (lab[0] - tMean[0]) / tStd[0] * refStd[0] + refMean[0];
-        lab[1] = (lab[1] - tMean[1]) / tStd[1] * refStd[1] + refMean[1];
-        lab[2] = (lab[2] - tMean[2]) / tStd[2] * refStd[2] + refMean[2];
-        var rgb = labToRgb(lab[0], lab[1], lab[2]);
-        d[i] = rgb[0]; d[i+1] = rgb[1]; d[i+2] = rgb[2];
-    }
-    
-    ctx.putImageData(targetData, 0, 0);
-    resultDataUrl = canvas.toDataURL("image/jpeg", 0.95);
+    ctx.putImageData(targetData,0,0);
+    resultDataUrl=canvas.toDataURL("image/jpeg",0.95);
     document.getElementById("resultArea").classList.remove("hidden");
 }
 
-function downloadResult() {
-    if (!resultDataUrl) return;
-    var a = document.createElement("a");
-    a.href = resultDataUrl; a.download = "color_transferred.jpg"; a.click();
-}
+function downloadResult() { if(!resultDataUrl)return; var a=document.createElement("a"); a.href=resultDataUrl; a.download="color_transferred.jpg"; a.click(); }
 
 function resetAll() {
-    refImg = null; targetImg = null; resultDataUrl = null;
+    refImg=null; targetImg=null; resultDataUrl=null;
     document.getElementById("refPreview").classList.add("hidden");
     document.getElementById("targetPreview").classList.add("hidden");
-    document.getElementById("actionArea").style.display = "none";
+    document.getElementById("actionArea").style.display="none";
     document.getElementById("resultArea").classList.add("hidden");
 }
 </script>
