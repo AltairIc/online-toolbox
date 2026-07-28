@@ -8,24 +8,19 @@
         <p class="text-gray-500 mb-6"><span class="lang-en">Match the color tone and mood of a reference image onto your photo in one click.</span><span class="lang-zh" style="display:none">一键将参考图的色调和氛围应用到你的照片上。</span></p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <label class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-500 block" id="refZone">
+            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition" id="refZone">
+                <input type="file" id="refInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <p class="text-sm font-medium text-gray-600"><span class="lang-en">Reference Image</span><span class="lang-zh" style="display:none">参考图</span></p>
-                <p class="text-xs text-gray-400 mt-1"><span class="lang-en">Click to upload</span><span class="lang-zh" style="display:none">点击上传</span></p>
+                <p class="text-xs text-gray-400 mt-1" id="refHint"><span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span></p>
                 <img id="refPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
-                <input type="file" id="refInput" accept="image/*" class="hidden" onchange="loadRef(this)">
-            </label>
-            <label class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-blue-500 block" id="targetZone">
+            </div>
+            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition" id="targetZone">
+                <input type="file" id="targetInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <p class="text-sm font-medium text-gray-600"><span class="lang-en">Your Photo</span><span class="lang-zh" style="display:none">你的照片</span></p>
-                <p class="text-xs text-gray-400 mt-1"><span class="lang-en">Click to upload</span><span class="lang-zh" style="display:none">点击上传</span></p>
+                <p class="text-xs text-gray-400 mt-1" id="targetHint"><span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span></p>
                 <img id="targetPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
-                <input type="file" id="targetInput" accept="image/*" class="hidden" onchange="loadTarget(this)">
-            </label>
+            </div>
         </div>
-
-        <div class="text-center mb-6" id="actionArea" style="display:none">
-            <button onclick="applyTransfer()" class="px-8 py-3 bg-blue-600 text-white rounded-lg text-base font-medium hover:bg-blue-700"><span class="lang-en">Apply Color Transfer</span><span class="lang-zh" style="display:none">应用色彩迁移</span></button>
-        </div>
-
         <div id="resultArea" class="hidden">
             <h3 class="text-sm font-semibold text-gray-700 mb-2"><span class="lang-en">Result</span><span class="lang-zh" style="display:none">结果</span></h3>
             <div class="bg-gray-100 rounded-lg overflow-hidden mb-4">
@@ -43,39 +38,39 @@
 var refImg = null, targetImg = null, resultDataUrl = null;
 var maxW = 800, maxH = 600;
 
-function loadRef(input) {
-    if (!input.files[0]) return;
+document.getElementById("refInput").addEventListener("change", function(e) {
+    if (!e.target.files[0]) return;
     var r = new FileReader();
-    r.onload = function(e) {
+    r.onload = function(ev) {
         var img = new Image();
         img.onload = function() {
             refImg = img;
-            document.getElementById("refPreview").src = e.target.result;
+            document.getElementById("refPreview").src = ev.target.result;
             document.getElementById("refPreview").classList.remove("hidden");
-            document.getElementById("refZone").querySelector("p:first-child").textContent = "Reference: " + input.files[0].name;
+            document.getElementById("refHint").textContent = e.target.files[0].name;
             checkReady();
         };
-        img.src = e.target.result;
+        img.src = ev.target.result;
     };
-    r.readAsDataURL(input.files[0]);
-}
+    r.readAsDataURL(e.target.files[0]);
+});
 
-function loadTarget(input) {
-    if (!input.files[0]) return;
+document.getElementById("targetInput").addEventListener("change", function(e) {
+    if (!e.target.files[0]) return;
     var r = new FileReader();
-    r.onload = function(e) {
+    r.onload = function(ev) {
         var img = new Image();
         img.onload = function() {
             targetImg = img;
-            document.getElementById("targetPreview").src = e.target.result;
+            document.getElementById("targetPreview").src = ev.target.result;
             document.getElementById("targetPreview").classList.remove("hidden");
-            document.getElementById("targetZone").querySelector("p:first-child").textContent = "Photo: " + input.files[0].name;
+            document.getElementById("targetHint").textContent = e.target.files[0].name;
             checkReady();
         };
-        img.src = e.target.result;
+        img.src = ev.target.result;
     };
-    r.readAsDataURL(input.files[0]);
-}
+    r.readAsDataURL(e.target.files[0]);
+});
 
 function checkReady() {
     if (refImg && targetImg) {
@@ -83,18 +78,14 @@ function checkReady() {
     }
 }
 
-// sRGB to linear RGB
 function srgbToLinear(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
 function linearToSrgb(c) { c = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1/2.4) - 0.055; return Math.round(Math.max(0, Math.min(255, c * 255))); }
 
-// RGB to LAB
 function rgbToLab(r,g,b) {
     var R = srgbToLinear(r), G = srgbToLinear(g), B = srgbToLinear(b);
-    // Linear RGB to XYZ (D65)
     var X = 0.412453*R + 0.357580*G + 0.180423*B;
     var Y = 0.212671*R + 0.715160*G + 0.072169*B;
     var Z = 0.019334*R + 0.119193*G + 0.950227*B;
-    // XYZ to Lab
     X /= 0.950456; Y /= 1.0; Z /= 1.088754;
     function f(t) { return t > 0.008856 ? Math.pow(t, 1/3) : 7.787*t + 16/116; }
     return [116 * f(Y) - 16, 500 * (f(X) - f(Y)), 200 * (f(Y) - f(Z))];
@@ -105,7 +96,6 @@ function labToRgb(l,a,b2) {
     var X = 0.950456 * (fx > 0.206893 ? Math.pow(fx, 3) : (fx - 16/116) / 7.787);
     var Y = 1.0 * (fy > 0.206893 ? Math.pow(fy, 3) : (fy - 16/116) / 7.787);
     var Z = 1.088754 * (fz > 0.206893 ? Math.pow(fz, 3) : (fz - 16/116) / 7.787);
-    // XYZ to Linear RGB
     var R = 3.240479*X - 1.537150*Y - 0.498535*Z;
     var G = -0.969256*X + 1.875992*Y + 0.041556*Z;
     var B = 0.055648*X - 0.204043*Y + 1.057311*Z;
@@ -114,8 +104,6 @@ function labToRgb(l,a,b2) {
 
 function applyTransfer() {
     if (!refImg || !targetImg) return;
-    
-    // Draw target image to canvas
     var canvas = document.getElementById("resultCanvas");
     var w = Math.min(targetImg.width, maxW), h = Math.min(targetImg.height, maxH);
     canvas.width = w; canvas.height = h;
@@ -123,18 +111,15 @@ function applyTransfer() {
     ctx.drawImage(targetImg, 0, 0, w, h);
     var targetData = ctx.getImageData(0, 0, w, h);
     
-    // Draw reference image
     var refC = document.createElement("canvas");
     refC.width = w; refC.height = h;
     var refCtx = refC.getContext("2d");
     refCtx.drawImage(refImg, 0, 0, w, h);
     var refData = refCtx.getImageData(0, 0, w, h);
     
-    // Calculate LAB stats for reference
     var refPixels = [];
     for (var i = 0; i < refData.data.length; i += 4) {
-        var lab = rgbToLab(refData.data[i], refData.data[i+1], refData.data[i+2]);
-        refPixels.push(lab);
+        refPixels.push(rgbToLab(refData.data[i], refData.data[i+1], refData.data[i+2]));
     }
     var n = refPixels.length;
     var refMean = [0,0,0];
@@ -154,11 +139,9 @@ function applyTransfer() {
     if (refStd[1] < 0.001) refStd[1] = 1;
     if (refStd[2] < 0.001) refStd[2] = 1;
     
-    // Calculate LAB stats for target
     var tPixels = [];
     for (var i = 0; i < targetData.data.length; i += 4) {
-        var lab = rgbToLab(targetData.data[i], targetData.data[i+1], targetData.data[i+2]);
-        tPixels.push(lab);
+        tPixels.push(rgbToLab(targetData.data[i], targetData.data[i+1], targetData.data[i+2]));
     }
     var tMean = [0,0,0];
     tPixels.forEach(function(p) { tMean[0] += p[0]; tMean[1] += p[1]; tMean[2] += p[2]; });
@@ -177,7 +160,6 @@ function applyTransfer() {
     if (tStd[1] < 0.001) tStd[1] = 1;
     if (tStd[2] < 0.001) tStd[2] = 1;
     
-    // Apply color transfer
     var d = targetData.data;
     for (var i = 0; i < d.length; i += 4) {
         var lab = rgbToLab(d[i], d[i+1], d[i+2]);
@@ -196,9 +178,7 @@ function applyTransfer() {
 function downloadResult() {
     if (!resultDataUrl) return;
     var a = document.createElement("a");
-    a.href = resultDataUrl;
-    a.download = "color_transferred.jpg";
-    a.click();
+    a.href = resultDataUrl; a.download = "color_transferred.jpg"; a.click();
 }
 
 function resetAll() {
@@ -209,8 +189,8 @@ function resetAll() {
     document.getElementById("resultArea").classList.add("hidden");
     document.getElementById("refInput").value = "";
     document.getElementById("targetInput").value = "";
-    document.getElementById("refZone").querySelector("p:first-child").textContent = "<span class="lang-en">Reference Image</span><span class="lang-zh" style="display:none">参考图</span>";
-    document.getElementById("targetZone").querySelector("p:first-child").textContent = "<span class="lang-en">Your Photo</span><span class="lang-zh" style="display:none">你的照片</span>";
+    document.getElementById("refHint").innerHTML = '<span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span>';
+    document.getElementById("targetHint").innerHTML = '<span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span>';
 }
-</script>
+</script></script>
 {% endblock %}
