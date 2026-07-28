@@ -27,7 +27,26 @@
             <div class="bg-gray-100 rounded-lg overflow-auto mb-4" style="max-height:70vh">
                 <canvas id="canvas" style="max-width:100%;height:auto"></canvas>
             </div>
-            <button onclick="downloadResult()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"><span class="lang-en">Download</span><span class="lang-zh" style="display:none">下载</span></button>
+            <details class="mb-4">
+            <summary class="text-sm font-medium text-gray-700 cursor-pointer hover:text-blue-600"><span class="lang-en">Customize Preset</span><span class="lang-zh" style="display:none">自定义预设</span></summary>
+            <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+                <div><label class="text-xs text-gray-500">Warmth</label><input type="range" id="sWarm" min="-30" max="30" value="0" oninput="applyCustom()" class="w-full"><span id="vWarm" class="text-xs text-gray-400">0</span></div>
+                <div><label class="text-xs text-gray-500">Contrast</label><input type="range" id="sContrast" min="-50" max="50" value="0" oninput="applyCustom()" class="w-full"><span id="vContrast" class="text-xs text-gray-400">0</span></div>
+                <div><label class="text-xs text-gray-500">Fade</label><input type="range" id="sFade" min="0" max="40" value="0" oninput="applyCustom()" class="w-full"><span id="vFade" class="text-xs text-gray-400">0</span></div>
+                <div><label class="text-xs text-gray-500">Saturation</label><input type="range" id="sSat" min="-50" max="30" value="0" oninput="applyCustom()" class="w-full"><span id="vSat" class="text-xs text-gray-400">0</span></div>
+                <div><label class="text-xs text-gray-500">Grain</label><input type="range" id="sGrain" min="0" max="30" value="0" oninput="applyCustom()" class="w-full"><span id="vGrain" class="text-xs text-gray-400">0</span></div>
+                <div><label class="text-xs text-gray-500">Vignette</label><input type="range" id="sVignette" min="0" max="40" value="0" oninput="applyCustom()" class="w-full"><span id="vVignette" class="text-xs text-gray-400">0</span></div>
+            </div>
+            <div class="flex gap-2 mt-2">
+                <button onclick="saveCustom()" class="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50"><span class="lang-en">Save Preset</span><span class="lang-zh" style="display:none">保存预设</span></button>
+                <button onclick="loadCustom()" class="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50"><span class="lang-en">Load Preset</span><span class="lang-zh" style="display:none">加载预设</span></button>
+                <button onclick="importXmp()" class="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50"><span class="lang-en">Import XMP</span><span class="lang-zh" style="display:none">导入 XMP</span></button>
+                <input type="file" id="xmpInput" accept=".xmp" class="hidden" onchange="parseXmp(this)">
+            </div>
+            <div id="loadDialog" class="hidden mt-2 p-2 bg-gray-50 rounded-lg text-sm text-gray-600">Saved presets: <span id="savedPresets"></span></div>
+        </details>
+
+        <button onclick="downloadResult()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"><span class="lang-en">Download</span><span class="lang-zh" style="display:none">下载</span></button>
         </div>
     </div>
 </div>
@@ -157,5 +176,158 @@ function downloadResult() {
     a.download = "film_preset.png";
     a.click();
 }
+
+function applyCustom() {
+    if (!originalData) return;
+    var p = {
+        warm: parseInt(document.getElementById("sWarm").value),
+        contrast: parseInt(document.getElementById("sContrast").value),
+        fade: parseInt(document.getElementById("sFade").value),
+        sat: parseInt(document.getElementById("sSat").value),
+        grain: parseInt(document.getElementById("sGrain").value),
+        vignette: parseInt(document.getElementById("sVignette").value)
+    };
+    document.getElementById("vWarm").textContent = p.warm;
+    document.getElementById("vContrast").textContent = p.contrast;
+    document.getElementById("vFade").textContent = p.fade;
+    document.getElementById("vSat").textContent = p.sat;
+    document.getElementById("vGrain").textContent = p.grain;
+    document.getElementById("vVignette").textContent = p.vignette;
+    applyPresetParams(p);
+}
+
+function applyPresetParams(p) {
+    if (!originalData) return;
+    var d = new Uint8ClampedArray(originalData.data);
+    var len = d.length, w = canvas.width, h = canvas.height;
+    var cx = w/2, cy = h/2, maxDist = Math.sqrt(cx*cx + cy*cy);
+    if (maxDist < 1) maxDist = 1;
+    var cTable = new Array(256);
+    for (var i = 0; i < 256; i++) {
+        var v = i;
+        if (p.contrast !== 0) {
+            var f = (259 * (p.contrast + 255)) / (255 * (259 - p.contrast));
+            v = f * (v - 128) + 128;
+        }
+        if (p.fade > 0) v = v + (128 - v) * p.fade / 100;
+        cTable[i] = Math.max(0, Math.min(255, Math.round(v)));
+    }
+    for (var i = 0; i < len; i += 4) {
+        d[i] = cTable[d[i]]; d[i+1] = cTable[d[i+1]]; d[i+2] = cTable[d[i+2]];
+        if (p.warm !== 0) {
+            d[i] = Math.max(0, Math.min(255, d[i] + p.warm));
+            d[i+2] = Math.max(0, Math.min(255, d[i+2] - p.warm));
+        }
+        if (p.sat !== 0) {
+            var gray = 0.3*d[i] + 0.59*d[i+1] + 0.11*d[i+2];
+            var f2 = 1 + p.sat / 100;
+            d[i] = Math.max(0, Math.min(255, gray + f2*(d[i] - gray)));
+            d[i+1] = Math.max(0, Math.min(255, gray + f2*(d[i+1] - gray)));
+            d[i+2] = Math.max(0, Math.min(255, gray + f2*(d[i+2] - gray)));
+        }
+        if (p.vignette > 0) {
+            var px = ((i/4)%w)-cx, py = Math.floor((i/4)/w)-cy;
+            var dist = Math.sqrt(px*px+py*py) / maxDist;
+            var vig = 1 - dist*dist*p.vignette/100;
+            d[i]*=vig; d[i+1]*=vig; d[i+2]*=vig;
+        }
+        if (p.grain > 0) {
+            var noise = (Math.random()-0.5)*p.grain*1.5;
+            d[i] = Math.max(0, Math.min(255, d[i]+noise));
+            d[i+1] = Math.max(0, Math.min(255, d[i+1]+noise));
+            d[i+2] = Math.max(0, Math.min(255, d[i+2]+noise));
+        }
+    }
+    ctx.putImageData(new ImageData(d,w,h),0,0);
+}
+
+function saveCustom() {
+    var name = prompt("Preset name:");
+    if (!name) return;
+    var p = {
+        warm: parseInt(document.getElementById("sWarm").value),
+        contrast: parseInt(document.getElementById("sContrast").value),
+        fade: parseInt(document.getElementById("sFade").value),
+        sat: parseInt(document.getElementById("sSat").value),
+        grain: parseInt(document.getElementById("sGrain").value),
+        vignette: parseInt(document.getElementById("sVignette").value)
+    };
+    var presets = JSON.parse(localStorage.getItem("filmPresets") || "{}");
+    presets[name] = p;
+    localStorage.setItem("filmPresets", JSON.stringify(presets));
+    alert("Saved: " + name);
+}
+
+function loadCustom() {
+    var presets = JSON.parse(localStorage.getItem("filmPresets") || "{}");
+    var names = Object.keys(presets);
+    if (names.length === 0) { alert("No saved presets"); return; }
+    var name = prompt("Load preset: " + names.join(", "));
+    if (!name || !presets[name]) return;
+    var p = presets[name];
+    document.getElementById("sWarm").value = p.warm;
+    document.getElementById("sContrast").value = p.contrast;
+    document.getElementById("sFade").value = p.fade;
+    document.getElementById("sSat").value = p.sat;
+    document.getElementById("sGrain").value = p.grain;
+    document.getElementById("sVignette").value = p.vignette;
+    applyCustom();
+}
+
+function importXmp() {
+    document.getElementById("xmpInput").click();
+}
+
+function parseXmp(input) {
+    if (!input.files || !input.files[0]) return;
+    var r = new FileReader();
+    r.onload = function(e) {
+        var xml = e.target.result;
+        function getVal(tag) {
+            var m = xml.match(tag + '="([^"]+)"');
+            return m ? parseFloat(m[1]) : 0;
+        }
+        var p = {
+            warm: (getVal("crs:Temperature") - 5000) / 100 || 0,
+            contrast: getVal("crs:Contrast") || 0,
+            fade: Math.max(0, -getVal("crs:LiftBlacks") || 0),
+            sat: getVal("crs:Saturation") || 0,
+            grain: getVal("crs:GrainAmount") || 0,
+            vignette: getVal("crs:VignetteAmount") || 0
+        };
+        document.getElementById("sWarm").value = Math.max(-30, Math.min(30, p.warm));
+        document.getElementById("sContrast").value = Math.max(-50, Math.min(50, p.contrast));
+        document.getElementById("sFade").value = Math.max(0, Math.min(40, p.fade));
+        document.getElementById("sSat").value = Math.max(-50, Math.min(30, p.sat));
+        document.getElementById("sGrain").value = Math.max(0, Math.min(30, p.grain));
+        document.getElementById("sVignette").value = Math.max(0, Math.min(40, p.vignette));
+        applyCustom();
+        alert("XMP imported! Adjust if needed.");
+    };
+    r.readAsText(input.files[0]);
+}
+
+// Override applyPreset to also update sliders
+var origApply = applyPreset;
+applyPreset = function(name) {
+    origApply(name);
+    var presets = {
+        portra: {warm:15,contrast:-10,fade:8,sat:-15,grain:3,vignette:15},
+        fuji: {warm:-5,contrast:-5,fade:12,sat:-20,grain:5,vignette:10},
+        cinestill: {warm:10,contrast:15,fade:5,sat:-5,grain:8,vignette:25},
+        trix: {warm:0,contrast:30,fade:0,sat:-100,grain:15,vignette:20},
+        vsco: {warm:8,contrast:-15,fade:25,sat:-25,grain:5,vignette:8},
+        instax: {warm:10,contrast:5,fade:5,sat:10,grain:2,vignette:10}
+    };
+    var p = presets[name];
+    if (!p) return;
+    document.getElementById("sWarm").value = p.warm;
+    document.getElementById("sContrast").value = p.contrast;
+    document.getElementById("sFade").value = p.fade;
+    document.getElementById("sSat").value = p.sat;
+    document.getElementById("sGrain").value = p.grain;
+    document.getElementById("sVignette").value = p.vignette;
+    applyCustom();
+};
 </script>
 {% endblock %}
