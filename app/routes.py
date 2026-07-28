@@ -37,6 +37,20 @@ TOOLS = [
 
 
 
+
+@main.route('/sitemap.xml')
+def sitemap():
+    from flask import Response
+    urls = """ + siteUrls + """
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    xml += '<url><loc>https://online-toolbox-37j0.onrender.com/</loc><priority>1.0</priority></url>\n'
+    xml += '<url><loc>https://online-toolbox-37j0.onrender.com/contact</loc><priority>0.8</priority></url>\n'
+    for u in urls.split("\n"):
+        if u.strip():
+            xml += '<url><loc>' + u.strip() + '</loc><priority>0.6</priority></url>\n'
+    xml += '</urlset>'
+    return Response(xml, mimetype='application/xml')
+
 @main.route('/contact')
 def contact():
     return render_template('contact.html')
