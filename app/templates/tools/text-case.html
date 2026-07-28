@@ -2,8 +2,8 @@
  {% block title %}Text Case Converter - Convert Text Case Online{% endblock %}
  {% block content %}
  <div class="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl mx-auto">
-     <h1 class="text-2xl font-bold text-gray-900 mb-2">Text Case Converter</h1>
-     <p class="text-gray-500 mb-4">Convert text between different cases: uppercase, lowercase, title case, camelCase, snake_case and more.</p>
+     <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Text Case Converter</span><span class="lang-zh" style="display:none">文本大小写转换</span></h1>
+     <p class="text-gray-500 mb-4"><span class="lang-en">Convert text between different cases: uppercase, lowercase, title case, camelCase, snake_case and more.</span><span class="lang-zh" style="display:none">在大小写、驼峰式、下划线式等不同格式之间自由转换。</span></p>
      <textarea id="inputText" rows="6" class="w-full mb-4" placeholder="Enter text to convert..."></textarea>
      <div class="flex flex-wrap gap-2 mb-4">
          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" onclick="convert('upper')">UPPER CASE</button>

@@ -2,8 +2,8 @@
  {% block title %}JSON Formatter - Validate & Beautify JSON Online{% endblock %}
  {% block content %}
  <div class="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl mx-auto">
-     <h1 class="text-2xl font-bold text-gray-900 mb-2">JSON Formatter</h1>
-     <p class="text-gray-500 mb-4">Format, validate and beautify your JSON data. Paste your JSON below and click Format.</p>
+     <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">JSON Formatter</span><span class="lang-zh" style="display:none">JSON 格式化</span></h1>
+     <p class="text-gray-500 mb-4"><span class="lang-en">Format, validate and beautify your JSON data. Paste your JSON below and click Format.</span><span class="lang-zh" style="display:none">格式化、验证和美化你的 JSON 数据。</span></p>
      <textarea id="inputJson" rows="10" class="w-full mb-4 font-mono text-sm" placeholder='{"name": "John", "age": 30}'></textarea>
      <div class="flex items-center gap-4 mb-4">
          <button class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" onclick="formatJson()">Format JSON</button>

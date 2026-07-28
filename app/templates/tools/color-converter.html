@@ -3,8 +3,8 @@
 {% block content %}
 
 <div class="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 mb-2">Color Converter</h1>
-    <p class="text-gray-500 mb-4">Convert colors between HEX, RGB formats.</p>
+    <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Color Converter</span><span class="lang-zh" style="display:none">颜色转换</span></h1>
+    <p class="text-gray-500 mb-4"><span class="lang-en">Convert colors between HEX, RGB formats.</span><span class="lang-zh" style="display:none">在 HEX、RGB 等颜色格式之间自由转换。</span></p>
     <div class="grid grid-cols-2 gap-4 mb-6">
         <div><label class="text-sm font-medium text-gray-700 mb-1 block">Convert from</label><select id="direction" class="w-full"><option value="hex_to_rgb">HEX to RGB</option><option value="rgb_to_hex">RGB to HEX</option></select></div>
         <div><label class="text-sm font-medium text-gray-700 mb-1 block">Color preview</label><div id="preview" class="w-full h-10 rounded-lg border"></div></div>

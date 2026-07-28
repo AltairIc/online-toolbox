@@ -3,8 +3,8 @@
 {% block content %}
 
 <div class="bg-white rounded-xl border border-gray-200 p-6 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 mb-2">UUID Generator</h1>
-    <p class="text-gray-500 mb-4">Generate random UUIDs (v4) in bulk. Perfect for database keys, test data, and unique identifiers.</p>
+    <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">UUID Generator</span><span class="lang-zh" style="display:none">UUID 生成器</span></h1>
+    <p class="text-gray-500 mb-4"><span class="lang-en">Generate random UUIDs (v4) in bulk. Perfect for database keys, test data, and unique identifiers.</span><span class="lang-zh" style="display:none">批量生成随机 UUID（v4）。适用于数据库键、测试数据和唯一标识。</span></p>
     <div class="flex items-center gap-4 mb-4">
         <label class="text-sm text-gray-600">Count: <input id="count" type="number" value="5" min="1" max="100" class="w-20"></label>
         <button class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" onclick="generate()">Generate UUIDs</button>
