@@ -6,11 +6,11 @@
     <div class="bg-white rounded-xl border border-gray-200 p-6">
         <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Image Resize & Convert</span><span class="lang-zh" style="display:none">图片缩放与格式转换</span></h1>
         <p class="text-gray-500 mb-4"><span class="lang-en">Resize images and convert between PNG, JPG and WEBP formats.</span><span class="lang-zh" style="display:none">调整图片尺寸，在 PNG、JPG 和 WEBP 格式之间转换。</span></p>
-        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center mb-4" id="dropZone">
+        <label class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 block mb-4" id="dropZone">
             <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <p class="text-gray-500 text-sm"><span class="lang-en">Click to upload or drag an image</span><span class="lang-zh" style="display:none">点击上传或拖拽图片</span></p>
-            <input type="file" id="fileInput" accept="image/*" class="hidden">
-        </div>
+            <input type="file" id="fileInput" accept="image/*" onchange="loadFile(this.files[0])" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mt-2">
+        </label>
         <div id="editor" class="hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
