@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Border Radius Generator - CSS Border Radius Visual Editor{% endblock %}
+{% block meta_desc %}Create custom CSS border-radius with a visual editor. Live preview with sliders for each corner. Free online tool.{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Border Radius Generator</span><span class="lang-zh" style="display:none">CSS 圆角生成器</span></h1>
+        <p class="text-gray-500 mb-4"><span class="lang-en">Visual CSS border-radius editor. Adjust each corner and copy the generated code.</span><span class="lang-zh" style="display:none">可视化编辑 CSS 圆角，逐角调节并复制生成的代码。</span></p>
+        <div class="mb-6 bg-gray-50 rounded-xl p-6 flex items-center justify-center" style="min-height:220px">
+            <div id="preview" class="w-48 h-48 bg-gradient-to-br from-blue-400 to-purple-500"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="text-xs text-gray-500"><span class="lang-en">Top-Left</span><span class="lang-zh" style="display:none">左上</span></label><input type="range" min="0" max="100" value="20" oninput="updateBR()" id="tl" class="w-full"></div>
+            <div><label class="text-xs text-gray-500"><span class="lang-en">Top-Right</span><span class="lang-zh" style="display:none">右上</span></label><input type="range" min="0" max="100" value="20" oninput="updateBR()" id="tr" class="w-full"></div>
+            <div><label class="text-xs text-gray-500"><span class="lang-en">Bottom-Left</span><span class="lang-zh" style="display:none">左下</span></label><input type="range" min="0" max="100" value="20" oninput="updateBR()" id="bl" class="w-full"></div>
+            <div><label class="text-xs text-gray-500"><span class="lang-en">Bottom-Right</span><span class="lang-zh" style="display:none">右下</span></label><input type="range" min="0" max="100" value="20" oninput="updateBR()" id="br" class="w-full"></div>
+        </div>
+        <label class="flex items-center gap-2 text-sm mb-4"><input type="checkbox" id="linked" checked onchange="toggleLinked()"> <span class="lang-en">Link all corners</span><span class="lang-zh" style="display:none">统一调节</span></label>
+        <label class="text-xs font-medium text-gray-600 mb-1 block"><span class="lang-en">CSS Code</span><span class="lang-zh" style="display:none">CSS 代码</span></label>
+        <div class="relative">
+            <textarea id="cssCode" rows="3" class="w-full font-mono text-sm bg-gray-50" readonly></textarea>
+            <button onclick="copyCSS()" class="absolute top-2 right-2 px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"><span class="lang-en">Copy</span><span class="lang-zh" style="display:none">复制</span></button>
+        </div>
+    </div>
+</div>
+<script>
+var linked = true;
+function updateBR() {
+    var tl = document.getElementById("tl").value;
+    var tr = document.getElementById("tr").value;
+    var bl = document.getElementById("bl").value;
+    var br = document.getElementById("br").value;
+    if (linked) {
+        var v = tl;
+        document.getElementById("tr").value = v;
+        document.getElementById("bl").value = v;
+        document.getElementById("br").value = v;
+        tr = bl = br = v;
+    }
+    var css = "border-radius: " + tl + "px " + tr + "px " + br + "px " + bl + "px;";
+    document.getElementById("preview").style.borderRadius = tl + "px " + tr + "px " + br + "px " + bl + "px";
+    document.getElementById("cssCode").value = css;
+    document.getElementById("tl").nextElementSibling.textContent = tl + "px";
+    document.getElementById("tr").nextElementSibling.textContent = tr + "px";
+    document.getElementById("bl").nextElementSibling.textContent = bl + "px";
+    document.getElementById("br").nextElementSibling.textContent = br + "px";
+}
+function toggleLinked() {
+    linked = document.getElementById("linked").checked;
+    updateBR();
+}
+function copyCSS() {
+    var ta = document.getElementById("cssCode");
+    ta.select();
+    navigator.clipboard.writeText(ta.value);
+}
+updateBR();
+</script>
+{% endblock %}

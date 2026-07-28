@@ -28,7 +28,9 @@ TOOLS = [
     {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"},
     {"id": "palette-generator", "name": "Color Palette Generator", "desc": "Generate complementary, analogous, triadic and more color schemes from any base color", "cat": "image"},
     {"id": "palette-converter", "name": "Batch Palette Converter", "desc": "Import multiple colors and convert between HEX, RGB and HSL formats in bulk", "cat": "image"},
-    {"id": "color-transfer", "name": "Color Transfer", "desc": "Match the color tone of a reference image onto your photo. Advanced color grading tool.", "cat": "image"}]
+    {"id": "color-transfer", "name": "Color Transfer", "desc": "Match the color tone of a reference image onto your photo. Advanced color grading tool.", "cat": "image"},
+    {"id": "csv-json", "name": "CSV to JSON Converter", "desc": "Convert CSV data to JSON and back. Edit, preview and copy results.", "cat": "dev"},
+    {"id": "border-radius", "name": "Border Radius Generator", "desc": "Create and customize CSS border-radius with a visual editor. Live preview.", "cat": "dev"}]
 
 
 @main.route("/ads.txt")

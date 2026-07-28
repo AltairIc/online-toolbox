@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}CSV to JSON Converter - Convert CSV to JSON Online{% endblock %}
+{% block meta_desc %}Convert CSV data to JSON format and JSON back to CSV. Free online CSV to JSON converter with live preview.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">CSV to JSON Converter</span><span class="lang-zh" style="display:none">CSV 转 JSON 转换器</span></h1>
+        <p class="text-gray-500 mb-4"><span class="lang-en">Convert CSV data to JSON format and back. Supports headers, custom delimiters.</span><span class="lang-zh" style="display:none">CSV 与 JSON 格式互相转换，支持表头和自定义分隔符。</span></p>
+        <div class="flex gap-2 mb-4">
+            <button onclick="csvToJson()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"><span class="lang-en">CSV JSON</span><span class="lang-zh" style="display:none">CSV 转 JSON</span></button>
+            <button onclick="jsonToCsv()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"><span class="lang-en">JSON CSV</span><span class="lang-zh" style="display:none">JSON 转 CSV</span></button>
+            <button onclick="copyResult()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"><span class="lang-en">Copy</span><span class="lang-zh" style="display:none">复制</span></button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div><label class="text-xs font-medium text-gray-600 mb-1 block"><span class="lang-en">Input</span><span class="lang-zh" style="display:none">输入</span></label><textarea id="input" rows="12" class="w-full font-mono text-sm">name,age,city
+John,30,New York
+Alice,25,London
+Bob,35,Tokyo</textarea></div>
+            <div><label class="text-xs font-medium text-gray-600 mb-1 block"><span class="lang-en">Output</span><span class="lang-zh" style="display:none">输出</span></label><textarea id="output" rows="12" class="w-full font-mono text-sm" readonly></textarea></div>
+        </div>
+    </div>
+</div>
+<script>
+function csvToJson() {
+    var lines = document.getElementById("input").value.split("\n").filter(function(l){return l.trim();});
+    if (lines.length < 2) return;
+    var headers = lines[0].split(",").map(function(h){return h.trim();});
+    var result = [];
+    for (var i = 1; i < lines.length; i++) {
+        var vals = lines[i].split(",").map(function(v){return v.trim();});
+        var obj = {};
+        for (var j = 0; j < headers.length; j++) {
+            obj[headers[j]] = vals[j] || "";
+        }
+        result.push(obj);
+    }
+    document.getElementById("output").value = JSON.stringify(result, null, 2);
+}
+
+function jsonToCsv() {
+    try {
+        var data = JSON.parse(document.getElementById("input").value);
+        if (!Array.isArray(data) || data.length === 0) return;
+        var headers = Object.keys(data[0]);
+        var lines = [headers.join(",")];
+        data.forEach(function(row) {
+            lines.push(headers.map(function(h) { return String(row[h] || ""); }).join(","));
+        });
+        document.getElementById("output").value = lines.join("\n");
+    } catch(e) { document.getElementById("output").value = "Invalid JSON"; }
+}
+
+function copyResult() {
+    var ta = document.getElementById("output");
+    ta.select();
+    navigator.clipboard.writeText(ta.value);
+}
+</script>
+{% endblock %}
