@@ -98,61 +98,39 @@ function translateToolCards(lang) {
 }
 
 function translatePage(lang) {
-    var dict = {
-        'Generate': '生成', 'Generate Hashes': '生成哈希', 'Generate Password': '生成密码',
-        'Generate QR Code': '生成二维码', 'Generate UUIDs': '生成 UUID',
-        'Format JSON': '格式化 JSON', 'Format': '格式化',
-        'Encode': '编码', 'Decode': '解码', 'Escape': '转义', 'Unescape': '反转义',
-        'Convert': '转换', 'Compare': '对比', 'Test': '测试', 'Test Regex': '测试正则',
-        'Copy to clipboard': '复制到剪贴板', 'Copy All': '全部复制', 'Copy': '复制',
-        'Swap': '交换', 'Download PNG': '下载 PNG',
-        'UPPER CASE': '大写', 'lower case': '小写', 'Title Case': '首字母大写',
-        'Sentence case': '句首大写', 'camelCase': '驼峰式', 'snake_case': '下划线式', 'kebab-case': '连接线式',
-        'Words': '词', 'Characters': '字符', 'Sentences': '句', 'Paragraphs': '段落',
-        'Valid JSON': '有效 JSON', 'Invalid JSON': '无效 JSON',
-        'Uppercase (A-Z)': '大写字母', 'Lowercase (a-z)': '小写字母',
-        'Digits (0-9)': '数字', 'Symbols (!@#$)': '符号',
-        'Regular Expression': '正则表达式', 'Test Text': '测试文本',
-        'Markdown Input': 'Markdown 输入', 'Preview': '预览',
-        'Color value': '颜色值', 'Color preview': '颜色预览',
-        'HEX to RGB': 'HEX 转 RGB', 'RGB to HEX': 'RGB 转 HEX',
-        'Length': '长度', 'Weight': '重量', 'Temperature': '温度',
-        'Value': '值', 'From': '从', 'To': '到', 'Category': '类型', 'Count': '数量', 'Unit': '单位',
-        'Content': '内容', 'Size (px)': '尺寸（像素）',
-        'Indent': '缩进', 'Original Text': '原始文本', 'Changed Text': '修改后文本',
-        'Result': '结果', 'Clear All': '清除全部', 'Picked Colors': '已取颜色',
-        'Export Palette': '导出色板', 'Zoom:': '缩放：',
-        'Click on the image to pick a color': '点击图片取色',
-        'Click on the image to start picking colors': '点击图片开始取色',
-        'Decoded Result:': '解码结果：', 'Decoding...': '解码中...',
-        'PNG, JPG, WEBP supported': '支持 PNG、JPG、WEBP',
-        'Click to upload or drag an image': '点击上传或拖拽图片',
-        'No QR code found in this image': '未在图片中找到二维码',
-        'UUID Generator': 'UUID 生成器', 'Password Generator': '密码生成器',
-        'Hash Generator': '哈希生成器', 'Color Converter': '颜色转换',
-        'Unit Converter': '单位转换', 'Text Diff Checker': '文本对比',
-        'Lorem Ipsum Generator': 'Lorem Ipsum 生成器', 'Regex Tester': '正则测试'
-    };
-    // Use querySelectorAll on specific element types for reliable translation
-    var targets = document.querySelectorAll('h1, h2, h3, label, button, option, th, td, p, span, div');
-    targets.forEach(function(el) {
-        if (el.querySelector('*')) return;
-        if (el.classList.contains('lang-en') || el.classList.contains('lang-zh')) return; // skip elements with children to avoid nested translation
-        var t = el.textContent.trim();
-        if (!t || t.length > 100) return;
-        var d = (lang === 'zh') ? dict : {};
-        // For English, reverse lookup
-        if (lang === 'en') {
-            for (var k in dict) { if (dict[k] === t) { d[t] = k; break; } }
+    var dict = {'Generate':'生成','Generate Hashes':'生成哈希','Generate Password':'生成密码','Generate QR Code':'生成二维码','Generate UUIDs':'生成 UUID','Format JSON':'格式化 JSON','Format':'格式化','Encode':'编码','Decode':'解码','Escape':'转义','Unescape':'反转义','Convert':'转换','Compare':'对比','Test':'测试','Test Regex':'测试正则','Copy to clipboard':'复制到剪贴板','Copy All':'全部复制','Copy':'复制','Swap':'交换','Download PNG':'下载 PNG','UPPER CASE':'大写','lower case':'小写','Title Case':'首字母大写','Sentence case':'句首大写','camelCase':'驼峰式','snake_case':'下划线式','kebab-case':'连接线式','Words':'词','Characters':'字符','Sentences':'句','Paragraphs':'段','Valid JSON':'有效 JSON','Invalid JSON':'无效 JSON','Uppercase (A-Z)':'大写字母','Lowercase (a-z)':'小写字母','Digits (0-9)':'数字','Symbols (!@#$)':'符号','Regular Expression':'正则表达式','Test Text':'测试文本','Markdown Input':'Markdown 输入','Preview':'预览','Color value':'颜色值','Color preview':'颜色预览','HEX to RGB':'HEX 转 RGB','RGB to HEX':'RGB 转 HEX','Length':'长度','Weight':'重量','Temperature':'温度','Value':'值','From':'从','To':'到','Category':'类型','Count':'数量','Unit':'单位','Content':'内容','Size (px)':'尺寸（像素）','Indent':'缩进','Original Text':'原始文本','Changed Text':'修改后文本','Result':'结果','Clear All':'清除全部','Picked Colors':'已取颜色','Export Palette':'导出色板','Zoom:':'缩放：','Count:':'数量：','Length:':'长度：','Unit:':'单位：','Indent:':'缩进：','Click on the image to pick a color':'点击图片取色','Click on the image to start picking colors':'点击图片开始取色','Decoded Result:':'解码结果：','Decoding...':'解码中...','PNG, JPG, WEBP supported':'支持 PNG、JPG、WEBP','Click to upload or drag an image':'点击上传或拖拽图片','No QR code found in this image':'未在图片中找到二维码','UUID Generator':'UUID 生成器','Password Generator':'密码生成器','Hash Generator':'哈希生成器','Color Converter':'颜色转换','Unit Converter':'单位转换','Text Diff Checker':'文本对比','Lorem Ipsum Generator':'Lorem Ipsum 生成器','Regex Tester':'正则测试','Word Counter':'字数统计','Text Case Converter':'文本大小写转换','HTML Entity Converter':'HTML 实体转换','URL Encoder / Decoder':'URL 编解码','Base64 Encoder / Decoder':'Base64 编解码','Markdown Preview':'Markdown 预览','QR Code Generator':'二维码生成','QR Code Reader':'二维码识别','Color Picker from Image':'图片取色器','Generate random UUIDs (v4) in bulk':'批量生成随机 UUID（v4）','Write and preview Markdown in real-time':'实时编写和预览 Markdown','Test your regular expressions with real-time matching':'实时测试正则表达式',
+'Format, validate and beautify JSON data':'格式化、验证和美化 JSON 数据','Convert text between different cases':'在大小写、标题格式等之间自由转换',
+'Convert between length, weight and temperature units':'在长度、重量、温度等单位之间转换','Generate MD5, SHA-1, SHA-256 and SHA-512 hashes':'生成 MD5、SHA1、SHA256、SHA512 哈希值',
+'Generate strong, random passwords instantly':'生成高强度随机密码','Generate placeholder text for your designs and layouts':'生成占位文本',
+'Compare two texts and see the differences highlighted':'对比两段文本并高亮差异','Encode text to Base64 or decode Base64 back to text':'Base64 编码和解码',
+'Encode or decode URLs for safe web transmission':'URL 编码和解码','Escape or unescape HTML entities in your text':'HTML 实体转义和反转义',
+'Convert colors between HEX, RGB formats':'在 HEX、RGB 之间转换颜色','Count words, characters, sentences and paragraphs in real-time':'实时统计字数、字符数、句子和段落',
+'Generate QR codes from any text or URL':'从文本或链接生成二维码','Upload an image and read any QR code from it':'上传图片识别二维码',
+'Upload an image containing a QR code to decode it':'上传包含二维码的图片进行解码','Pick colors from images, get RGB/HEX values':'从图片取色，获取 RGB/HEX 值',
+'Click to upload or drag and drop an image':'点击上传或拖拽图片','Perfect for database keys, test data, and unique identifiers':'适用于数据库键、测试数据和唯一标识'};
+    // Translate all text nodes recursively
+    var ad = (lang === 'zh') ? dict : {};
+    if (lang === 'en') { for (var k in dict) { ad[dict[k]] = k; } }
+    function walk(el) {
+        if (el.nodeType === 3) { // TEXT_NODE
+            var t = el.textContent.trim();
+            if (t && t.length < 100 && ad[t]) {
+                el.textContent = dict[t];
+            }
+            return;
         }
-        if (d[t]) el.textContent = d[t];
-    });
-    // Also translate placeholders
+        if (el.tagName && ['SCRIPT','STYLE','TEXTAREA','INPUT','SELECT','OPTION'].indexOf(el.tagName) >= 0) return;
+        if (el.classList && (el.classList.contains('lang-en') || el.classList.contains('lang-zh'))) return;
+        var children = Array.from(el.childNodes);
+        for (var i = 0; i < children.length; i++) walk(children[i]);
+    }
+    walk(document.body);
+    // Translate placeholders
     document.querySelectorAll('[placeholder]').forEach(function(el) {
-        var p2 = el.getAttribute('placeholder');
-        if (lang === 'zh' && dict[p2]) el.setAttribute('placeholder', dict[p2]);
+        var p = el.getAttribute('placeholder');
+        if (lang === 'zh' && dict[p]) el.setAttribute('placeholder', dict[p]);
         else if (lang === 'en') {
-            for (var k in dict) { if (dict[k] === p2) { el.setAttribute('placeholder', k); break; } }
+            for (var k in dict) { if (dict[k] === p) { el.setAttribute('placeholder', k); break; } }
         }
     });
 }
