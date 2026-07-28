@@ -1,12 +1,53 @@
  {% extends "base.html" %}
  {% block title %}ToolBox{% endblock %}
  {% block content %}
+<div class="mb-6">
+    <div class="flex flex-wrap gap-2 justify-center">
+        <button onclick="filterTools('all')" class="cat-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700" data-cat="all">
+            <span class="lang-en">All</span><span class="lang-zh" style="display:none">全部</span>
+        </button>
+        <button onclick="filterTools('text')" class="cat-btn px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200" data-cat="text">
+            <span class="lang-en">Text</span><span class="lang-zh" style="display:none">文本</span>
+        </button>
+        <button onclick="filterTools('dev')" class="cat-btn px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200" data-cat="dev">
+            <span class="lang-en">Developer</span><span class="lang-zh" style="display:none">开发</span>
+        </button>
+        <button onclick="filterTools('image')" class="cat-btn px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200" data-cat="image">
+            <span class="lang-en">Image</span><span class="lang-zh" style="display:none">图片</span>
+        </button>
+        <button onclick="filterTools('gen')" class="cat-btn px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200" data-cat="gen">
+            <span class="lang-en">Generator</span><span class="lang-zh" style="display:none">生成</span>
+        </button>
+        <button onclick="filterTools('util')" class="cat-btn px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200" data-cat="util">
+            <span class="lang-en">Utility</span><span class="lang-zh" style="display:none">实用</span>
+        </button>
+    </div>
+</div>
+
+<script>
+function filterTools(cat) {
+    document.querySelectorAll('.cat-btn').forEach(function(b) {
+        if (b.getAttribute('data-cat') === cat || (cat === 'all' && b.getAttribute('data-cat') === 'all')) {
+            b.className = 'cat-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700';
+        } else {
+            b.className = 'cat-btn px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200';
+        }
+    });
+    document.querySelectorAll('.tool-card').forEach(function(card) {
+        if (cat === 'all' || card.getAttribute('data-cat') === cat) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
  <div class="text-center mb-10">
      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3"><span class="lang-en">Free Online Tools</span><span class="lang-zh lang-block" style="display:none">免费在线工具箱</span></h1>
      <p class="text-gray-500 text-lg"><span class="lang-en">Useful utilities for developers, writers, and designers. All free, no signup needed.</span><span class="lang-zh lang-block" style="display:none">面向开发者、写作者和设计师的实用工具。全部免费，无需注册。</span></p>
  </div>
  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-     {% for tool in tools %}
+     {% for tool in tools %}{% if tool.cat is defined %}
      <a href="/tool/{{ tool.id }}" class="tool-card bg-white rounded-xl p-5 border border-gray-100 cursor-pointer block">
          <div class="flex items-start gap-3">
              <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -18,6 +59,6 @@
              </div>
          </div>
      </a>
-     {% endfor %}
+     {% endif %}{% endfor %}
  </div>
  {% endblock %}
