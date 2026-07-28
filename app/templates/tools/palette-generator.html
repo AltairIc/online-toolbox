@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Color Palette Generator - Create Color Schemes Online{% endblock %}
+{% block meta_desc %}Generate complementary, analogous, triadic, tetradic and monochromatic color palettes from any base color. Free online palette generator.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2"><span class="lang-en">Color Palette Generator</span><span class="lang-zh" style="display:none">取色板生成器</span></h1>
+        <p class="text-gray-500 mb-6"><span class="lang-en">Generate beautiful color schemes from any base color.</span><span class="lang-zh" style="display:none">从任意基础色生成漂亮的配色方案。</span></p>
+
+        <div class="flex flex-wrap items-center gap-4 mb-6">
+            <div>
+                <label class="text-sm text-gray-500 block mb-1"><span class="lang-en">Base Color</span><span class="lang-zh" style="display:none">基础色</span></label>
+                <div class="flex items-center gap-2">
+                    <input type="color" id="baseColor" value="#3b82f6" onchange="updatePalette()" class="w-10 h-10 p-0.5 rounded-lg border border-gray-300 cursor-pointer">
+                    <input type="text" id="hexInput" value="#3b82f6" maxlength="7" oninput="hexChanged(this.value)" class="w-24 font-mono text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="text-sm text-gray-500 block mb-1"><span class="lang-en">Scheme</span><span class="lang-zh" style="display:none">方案</span></label>
+                <select id="schemeType" onchange="updatePalette()" class="w-36 text-sm">
+                    <option value="complementary"><span class="lang-en">Complementary</span><span class="lang-zh" style="display:none">互补色</span></option>
+                    <option value="analogous"><span class="lang-en">Analogous</span><span class="lang-zh" style="display:none">类似色</span></option>
+                    <option value="triadic"><span class="lang-en">Triadic</span><span class="lang-zh" style="display:none">三角色</span></option>
+                    <option value="tetradic"><span class="lang-en">Tetradic</span><span class="lang-zh" style="display:none">四角色</span></option>
+                    <option value="split"><span class="lang-en">Split Complementary</span><span class="lang-zh" style="display:none">分裂互补</span></option>
+                    <option value="monochromatic"><span class="lang-en">Monochromatic</span><span class="lang-zh" style="display:none">单色系</span></option>
+                </select>
+            </div>
+        </div>
+
+        <div id="palette" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6"></div>
+
+        <div class="flex justify-between items-center">
+            <button onclick="copyAll()" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"><span class="lang-en">Copy All HEX</span><span class="lang-zh" style="display:none">复制所有 HEX</span></button>
+            <button onclick="randomColor()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"><span class="lang-en">Random</span><span class="lang-zh" style="display:none">随机</span></button>
+        </div>
+    </div>
+</div>
+
+<script>
+function hexToRgb(h) { var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16); return{r,g,b}; }
+function rgbToHex(r,g,b) { return "#"+[r,g,b].map(function(v){return Math.round(v).toString(16).padStart(2,"0")}).join(""); }
+function rgbToHsl(r,g,b) { r/=255;g/=255;b/=255;var M=Math.max(r,g,b),m=Math.min(r,g,b),d=M-m,h,s,l=(M+m)/2;if(d===0){h=0;s=0}else{s=l>0.5?d/(2-M-m):d/(M+m);var dr=((M-r)/6+d/2)/d,dg=((M-g)/6+d/2)/d,db=((M-b)/6+d/2)/d;if(r===M)h=db-dg;else if(g===M)h=1/3+dr-db;else h=2/3+dg-dr;if(h<0)h+=1;if(h>1)h-=1}return{h:h*360,s:s*100,l:l*100};}
+function hslToRgb(h,s,l) { h/=360;s/=100;l/=100;var r,g,b;if(s===0){r=g=b=l}else{var hue2rgb=function(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p};var q2=l<0.5?l*(1+s):l+s-l*s,p2=2*l-q2;r=hue2rgb(p2,q2,h+1/3);g=hue2rgb(p2,q2,h);b=hue2rgb(p2,q2,h-1/3)}return{r:Math.round(r*255),g:Math.round(g*255),b:Math.round(b*255)};}
+
+function generatePalette(hex, type) {
+    var rgb = hexToRgb(hex);
+    var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    var h = hsl.h, s = hsl.s, l = hsl.l;
+    var colors = [];
+    function add(h2,s2,l2) {
+        var c = hslToRgb(h2,s2,l2);
+        colors.push(rgbToHex(c.r,c.g,c.b));
+    }
+    switch(type) {
+        case "complementary":
+            add(h,s,l); add((h+180)%360,s,l);
+            break;
+        case "analogous":
+            add(h,s,l); add((h+30)%360,s,l); add((h+60)%360,s,l); add((h-30+360)%360,s,l); add((h-60+360)%360,s,l);
+            break;
+        case "triadic":
+            add(h,s,l); add((h+120)%360,s,l); add((h+240)%360,s,l);
+            break;
+        case "tetradic":
+            add(h,s,l); add((h+90)%360,s,l); add((h+180)%360,s,l); add((h+270)%360,s,l);
+            break;
+        case "split":
+            add(h,s,l); add((h+150)%360,s,l); add((h-150+360)%360,s,l);
+            break;
+        case "monochromatic":
+            add(h,s,15); add(h,s,30); add(h,s,50); add(h,s,70); add(h,s,85);
+            break;
+    }
+    return colors;
+}
+
+function updatePalette() {
+    var hex = document.getElementById("baseColor").value;
+    document.getElementById("hexInput").value = hex;
+    var type = document.getElementById("schemeType").value;
+    var colors = generatePalette(hex, type);
+    var container = document.getElementById("palette");
+    container.innerHTML = colors.map(function(c) {
+        return '<div class="rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:shadow-md transition" onclick="copyColor(\''+c+'\')" title="Click to copy">'
+            + '<div class="h-20" style="background:'+c+'"></div>'
+            + '<div class="p-2 text-center">'
+            + '<div class="text-xs font-mono font-medium">'+c+'</div>'
+            + '</div>'
+            + '</div>';
+    }).join("");
+}
+
+function copyColor(hex) {
+    navigator.clipboard.writeText(hex);
+}
+
+function copyAll() {
+    var colors = [];
+    document.querySelectorAll("#palette .font-mono").forEach(function(el) { colors.push(el.textContent); });
+    navigator.clipboard.writeText(colors.join("\n"));
+    alert("Copied!");
+}
+
+function hexChanged(v) {
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById("baseColor").value = v; updatePalette(); }
+}
+
+function randomColor() {
+    var hex = "#" + Math.floor(Math.random()*16777215).toString(16).padStart(6,"0");
+    document.getElementById("baseColor").value = hex;
+    document.getElementById("hexInput").value = hex;
+    updatePalette();
+}
+
+updatePalette();
+</script>
+{% endblock %}

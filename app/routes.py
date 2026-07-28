@@ -25,7 +25,8 @@ TOOLS = [
     {"id": "image-filters", "cat": "image", "name": "Image Filters", "desc": "Apply filters like grayscale, sepia, blur, brightness and contrast to images", "icon": "image"},
     {"id": "image-crop", "cat": "image", "name": "Image Crop", "desc": "Crop images with custom or preset aspect ratios", "icon": "crop"},
     {"id": "image-compare", "cat": "image", "name": "Image Compare", "desc": "Compare two images side by side with a draggable slider", "icon": "git-compare"},
-    {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"}]
+    {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"},
+    {"id": "palette-generator", "name": "Color Palette Generator", "desc": "Generate complementary, analogous, triadic and more color schemes from any base color", "cat": "image"}]
 
 
 @main.route("/ads.txt")
