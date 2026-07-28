@@ -9,7 +9,10 @@
         <label class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 block mb-4">
             <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <p class="text-sm text-gray-500"><span class="lang-en">Click to upload an image</span><span class="lang-zh" style="display:none">点击上传图片</span></p>
-            <input type="file" accept="image/*" onchange="loadImage(this)" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mt-2">
+            <button onclick="loadSample()" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 mr-2">
+            <span class="lang-en">Sample Image</span><span class="lang-zh" style="display:none">示例图片</span>
+        </button>
+        <input type="file" accept="image/*" onchange="loadImage(this)" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mt-2">
         </label>
         <div id="editor" class="hidden">
             <div class="flex flex-wrap items-center gap-4 mb-4">
@@ -36,6 +39,43 @@
 <script>
 var img = null;
 var chars = ["@","%","#","*","+","=","-",":","."," "];
+
+
+
+function loadSample() {
+    var c = document.createElement("canvas");
+    c.width = 600;
+    c.height = 400;
+    var ctx = c.getContext("2d");
+    var grd = ctx.createLinearGradient(0, 0, 600, 400);
+    grd.addColorStop(0, "#ff6b6b");
+    grd.addColorStop(0.25, "#ffd93d");
+    grd.addColorStop(0.5, "#6bcb77");
+    grd.addColorStop(0.75, "#4d96ff");
+    grd.addColorStop(1, "#9b59b6");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 600, 400);
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.beginPath();
+    ctx.arc(200, 200, 80, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.arc(400, 250, 60, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.fillRect(250, 300, 100, 80);
+    c.toBlob(function(blob) {
+        var file = new File([blob], "sample.png", {type: "image/png"});
+        if (typeof loadFile === "function") { loadFile(file); return; }
+        if (typeof loadImage === "function") {
+            var dt = new DataTransfer();
+            dt.items.add(file);
+            var input = document.querySelector('input[type="file"]');
+            if (input) { input.files = dt.files; loadImage(input); }
+        }
+    });
+}
 
 function loadImage(input) {
     if (!input.files || !input.files[0]) return;

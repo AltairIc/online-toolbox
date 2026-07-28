@@ -8,7 +8,10 @@
         <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center mb-4" id="dropZone">
             <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <p class="text-gray-500 text-sm"><span class="lang-en">Click to upload or drag an image</span><span class="lang-zh" style="display:none">点击上传或拖拽图片</span></p>
-            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            <button onclick="loadSample()" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 mr-2">
+            <span class="lang-en">Sample Image</span><span class="lang-zh" style="display:none">示例图片</span>
+        </button>
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
         </div>
         <div id="editor" class="hidden">
             <div class="flex flex-wrap gap-2 mb-4">
@@ -33,6 +36,43 @@ document.getElementById("dropZone").ondragover=function(e){e.preventDefault();th
 document.getElementById("dropZone").ondragleave=function(){this.style.borderColor=""};
 document.getElementById("dropZone").ondrop=function(e){e.preventDefault();this.style.borderColor="";if(e.dataTransfer.files.length)loadFile(e.dataTransfer.files[0])};
 document.getElementById("fileInput").onchange=function(e){if(e.target.files[0])loadFile(e.target.files[0])};
+
+
+function loadSample() {
+    var c = document.createElement("canvas");
+    c.width = 600;
+    c.height = 400;
+    var ctx = c.getContext("2d");
+    var grd = ctx.createLinearGradient(0, 0, 600, 400);
+    grd.addColorStop(0, "#ff6b6b");
+    grd.addColorStop(0.25, "#ffd93d");
+    grd.addColorStop(0.5, "#6bcb77");
+    grd.addColorStop(0.75, "#4d96ff");
+    grd.addColorStop(1, "#9b59b6");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 600, 400);
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.beginPath();
+    ctx.arc(200, 200, 80, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.arc(400, 250, 60, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.fillRect(250, 300, 100, 80);
+    c.toBlob(function(blob) {
+        var file = new File([blob], "sample.png", {type: "image/png"});
+        if (typeof loadFile === "function") { loadFile(file); return; }
+        if (typeof loadImage === "function") {
+            var dt = new DataTransfer();
+            dt.items.add(file);
+            var input = document.querySelector('input[type="file"]');
+            if (input) { input.files = dt.files; loadImage(input); }
+        }
+    });
+}
+
 function loadFile(file){var r=new FileReader();r.onload=function(e){var i=new Image();i.onload=function(){img=i;canvas.width=i.width;canvas.height=i.height;ctx.drawImage(i,0,0,canvas.width,canvas.height);var m=Math.min(canvas.width,canvas.height);crop={x:Math.min(10,Math.round(canvas.width*0.05)),y:Math.min(10,Math.round(canvas.height*0.05)),w:Math.round(canvas.width*0.9),h:Math.round(canvas.height*0.9)};drawCrop();document.getElementById("editor").classList.remove("hidden");document.getElementById("dropZone").classList.add("hidden")};i.src=e.target.result};r.readAsDataURL(file)}
 function drawCrop(){ctx.drawImage(img,0,0,canvas.width,canvas.height);ctx.fillStyle="rgba(0,0,0,0.4)";ctx.fillRect(0,0,canvas.width,crop.y);ctx.fillRect(0,crop.y,crop.x,crop.h);ctx.fillRect(crop.x+crop.w,crop.y,canvas.width-crop.x-crop.w,crop.h);ctx.fillRect(0,crop.y+crop.h,canvas.width,canvas.height-crop.y-crop.h);ctx.strokeStyle="white";ctx.lineWidth=2;ctx.strokeRect(crop.x,crop.y,crop.w,crop.h);var s=6;ctx.fillStyle="white";ctx.strokeStyle="#3b82f6";ctx.lineWidth=2;[[crop.x,crop.y],[crop.x+crop.w,crop.y],[crop.x,crop.y+crop.h],[crop.x+crop.w,crop.y+crop.h]].forEach(function(p){ctx.fillRect(p[0]-s/2,p[1]-s/2,s,s);ctx.strokeRect(p[0]-s/2,p[1]-s/2,s,s)})}
 function getHit(x,y){var t=8,e=crop;if(Math.abs(x-e.x)<t&&Math.abs(y-e.y)<t)return"nw";if(Math.abs(x-e.x-e.w)<t&&Math.abs(y-e.y)<t)return"ne";if(Math.abs(x-e.x)<t&&Math.abs(y-e.y-e.h)<t)return"sw";if(Math.abs(x-e.x-e.w)<t&&Math.abs(y-e.y-e.h)<t)return"se";if(Math.abs(x-e.x)<t&&y>e.y&&y<e.y+e.h)return"w";if(Math.abs(x-e.x-e.w)<t&&y>e.y&&y<e.y+e.h)return"e";if(Math.abs(y-e.y)<t&&x>e.x&&x<e.x+e.w)return"n";if(Math.abs(y-e.y-e.h)<t&&x>e.x&&x<e.x+e.w)return"s";if(x>e.x&&x<e.x+e.w&&y>e.y&&y<e.y+e.h)return"move";return null}
