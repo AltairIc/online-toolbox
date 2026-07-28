@@ -32,7 +32,8 @@ TOOLS = [
     {"id": "csv-json", "name": "CSV to JSON Converter", "desc": "Convert CSV data to JSON and back. Edit, preview and copy results.", "cat": "dev"},
     {"id": "border-radius", "name": "Border Radius Generator", "desc": "Create and customize CSS border-radius with a visual editor. Live preview.", "cat": "dev"},
     {"id": "pixel-art", "name": "Pixel Art Generator", "desc": "Turn any photo into 8-bit pixel art. Adjustable pixel size and color palette.", "cat": "image"},
-    {"id": "ascii-art", "name": "ASCII Art Generator", "desc": "Convert any photo into ASCII character art. Copy or download as text.", "cat": "image"}]
+    {"id": "ascii-art", "name": "ASCII Art Generator", "desc": "Convert any photo into ASCII character art. Copy or download as text.", "cat": "image"},
+    {"id": "film-presets", "name": "Film Look Presets", "desc": "Apply classic film stock looks: Kodak Portra, Fujifilm, Cinestill, VSCO and more. Professional color grading in one click.", "cat": "image"}]
 
 
 @main.route("/ads.txt")
