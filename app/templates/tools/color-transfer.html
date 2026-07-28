@@ -8,19 +8,22 @@
         <p class="text-gray-500 mb-6"><span class="lang-en">Match the color tone and mood of a reference image onto your photo in one click.</span><span class="lang-zh" style="display:none">一键将参考图的色调和氛围应用到你的照片上。</span></p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition" class="relative"  style="position:relative" id="refZone">
-                <input type="file" id="refInput" accept="image/*" class="relative absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 cursor-pointer" id="refZone">
                 <p class="text-sm font-medium text-gray-600"><span class="lang-en">Reference Image</span><span class="lang-zh" style="display:none">参考图</span></p>
-                <p class="text-xs text-gray-400 mt-1" id="refHint"><span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span></p>
+                <p class="text-xs text-gray-400 mt-1" id="refHint"><span class="lang-en">Click here</span><span class="lang-zh" style="display:none">点击这里</span></p>
                 <img id="refPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
             </div>
-            <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 transition"  style="position:relative" id="targetZone">
-                <input type="file" id="targetInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-500 cursor-pointer" id="targetZone">
                 <p class="text-sm font-medium text-gray-600"><span class="lang-en">Your Photo</span><span class="lang-zh" style="display:none">你的照片</span></p>
-                <p class="text-xs text-gray-400 mt-1" id="targetHint"><span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span></p>
+                <p class="text-xs text-gray-400 mt-1" id="targetHint"><span class="lang-en">Click here</span><span class="lang-zh" style="display:none">点击这里</span></p>
                 <img id="targetPreview" class="hidden max-h-40 mx-auto mt-2 rounded">
             </div>
         </div>
+
+        <div class="text-center mb-6" id="actionArea" style="display:none">
+            <button onclick="applyTransfer()" class="px-8 py-3 bg-blue-600 text-white rounded-lg text-base font-medium hover:bg-blue-700"><span class="lang-en">Apply Color Transfer</span><span class="lang-zh" style="display:none">应用色彩迁移</span></button>
+        </div>
+
         <div id="resultArea" class="hidden">
             <h3 class="text-sm font-semibold text-gray-700 mb-2"><span class="lang-en">Result</span><span class="lang-zh" style="display:none">结果</span></h3>
             <div class="bg-gray-100 rounded-lg overflow-hidden mb-4">
@@ -38,38 +41,59 @@
 var refImg = null, targetImg = null, resultDataUrl = null;
 var maxW = 800, maxH = 600;
 
-document.getElementById("refInput").addEventListener("change", function(e) {
-    if (!e.target.files[0]) return;
-    var r = new FileReader();
-    r.onload = function(ev) {
-        var img = new Image();
-        img.onload = function() {
-            refImg = img;
-            document.getElementById("refPreview").src = ev.target.result;
-            document.getElementById("refPreview").classList.remove("hidden");
-            document.getElementById("refHint").textContent = e.target.files[0].name;
-            checkReady();
+function setupUpload(zoneId, imgId, hintId, callback) {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.style.display = "none";
+    document.body.appendChild(input);
+    
+    var zone = document.getElementById(zoneId);
+    zone.addEventListener("click", function() {
+        input.click();
+    });
+    
+    zone.addEventListener("dragover", function(e) {
+        e.preventDefault();
+        this.style.borderColor = "#3b82f6";
+    });
+    zone.addEventListener("dragleave", function() {
+        this.style.borderColor = "";
+    });
+    zone.addEventListener("drop", function(e) {
+        e.preventDefault();
+        this.style.borderColor = "";
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    
+    input.addEventListener("change", function(e) {
+        if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+    
+    function handleFile(file) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            var img = new Image();
+            img.onload = function() {
+                callback(img);
+                document.getElementById(imgId).src = ev.target.result;
+                document.getElementById(imgId).classList.remove("hidden");
+                document.getElementById(hintId).textContent = file.name;
+            };
+            img.src = ev.target.result;
         };
-        img.src = ev.target.result;
-    };
-    r.readAsDataURL(e.target.files[0]);
+        reader.readAsDataURL(file);
+    }
+}
+
+setupUpload("refZone", "refPreview", "refHint", function(img) {
+    refImg = img;
+    checkReady();
 });
 
-document.getElementById("targetInput").addEventListener("change", function(e) {
-    if (!e.target.files[0]) return;
-    var r = new FileReader();
-    r.onload = function(ev) {
-        var img = new Image();
-        img.onload = function() {
-            targetImg = img;
-            document.getElementById("targetPreview").src = ev.target.result;
-            document.getElementById("targetPreview").classList.remove("hidden");
-            document.getElementById("targetHint").textContent = e.target.files[0].name;
-            checkReady();
-        };
-        img.src = ev.target.result;
-    };
-    r.readAsDataURL(e.target.files[0]);
+setupUpload("targetZone", "targetPreview", "targetHint", function(img) {
+    targetImg = img;
+    checkReady();
 });
 
 function checkReady() {
@@ -187,10 +211,6 @@ function resetAll() {
     document.getElementById("targetPreview").classList.add("hidden");
     document.getElementById("actionArea").style.display = "none";
     document.getElementById("resultArea").classList.add("hidden");
-    document.getElementById("refInput").value = "";
-    document.getElementById("targetInput").value = "";
-    document.getElementById("refHint").innerHTML = '<span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span>';
-    document.getElementById("targetHint").innerHTML = '<span class="lang-en">Click to upload or drag</span><span class="lang-zh" style="display:none">点击上传或拖拽</span>';
 }
-</script></script>
+</script>
 {% endblock %}
