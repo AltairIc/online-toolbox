@@ -132,11 +132,11 @@ function applyTransfer() {
         d[i]=rgb[0];d[i+1]=rgb[1];d[i+2]=rgb[2];
     }
     ctx.putImageData(targetData,0,0);
-    resultDataUrl=canvas.toDataURL("image/jpeg",0.95);
+    resultDataUrl=canvas.toDataURL("image/png");
     document.getElementById("resultArea").classList.remove("hidden");
 }
 
-function downloadResult() { if(!resultDataUrl)return; var a=document.createElement("a"); a.href=resultDataUrl; a.download="color_transferred.jpg"; a.click(); }
+function downloadResult() { if(!resultDataUrl)return; var a=document.createElement("a"); a.href=resultDataUrl; a.download="color_transferred.png"; a.click(); }
 
 function resetAll() {
     refImg=null; targetImg=null; resultDataUrl=null;
