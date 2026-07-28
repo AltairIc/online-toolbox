@@ -27,7 +27,8 @@ TOOLS = [
     {"id": "image-compare", "cat": "image", "name": "Image Compare", "desc": "Compare two images side by side with a draggable slider", "icon": "git-compare"},
     {"id": "image-resize", "cat": "image", "name": "Image Resize", "desc": "Resize images and convert between PNG, JPG and WEBP formats", "icon": "maximize"},
     {"id": "palette-generator", "name": "Color Palette Generator", "desc": "Generate complementary, analogous, triadic and more color schemes from any base color", "cat": "image"},
-    {"id": "palette-converter", "name": "Batch Palette Converter", "desc": "Import multiple colors and convert between HEX, RGB and HSL formats in bulk", "cat": "image"}]
+    {"id": "palette-converter", "name": "Batch Palette Converter", "desc": "Import multiple colors and convert between HEX, RGB and HSL formats in bulk", "cat": "image"},
+    {"id": "color-transfer", "name": "Color Transfer", "desc": "Match the color tone of a reference image onto your photo. Advanced color grading tool.", "cat": "image"}]
 
 
 @main.route("/ads.txt")
