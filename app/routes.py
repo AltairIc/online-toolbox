@@ -1,4 +1,4 @@
-import hashlib, base64, urllib.parse, re, json
+
 from flask import Blueprint, render_template, request, jsonify
 
 main = Blueprint("main", __name__)
@@ -21,7 +21,7 @@ TOOLS = [
     {"id": "unit-converter", "name": "Unit Converter", "desc": "Convert between length, weight, temperature and more", "icon": "ruler"},
     {'id': 'qr-generator', 'name': 'QR Code Generator', 'desc': 'Generate QR codes from text, URLs and more', 'icon': 'qr-code'},
     {'id': 'qr-reader', 'name': 'QR Code Reader', 'desc': 'Decode and read QR codes from images', 'icon': 'camera'},
-]
+    {"id": "color-picker", "name": "Color Picker from Image", "desc": "Pick colors from images, get RGB/HEX values, and build color palettes for photo editing", "icon": "droplet"}]
 
 @main.route("/")
 def index():
